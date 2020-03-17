@@ -1,9 +1,9 @@
 <template>
   <div class="toolbar">
-    <button class="edit">Edit</button>
+    <button class="edit">编辑</button>
     <div class="title">
       <div class="blogger">meme</div>
-      <div class="status">Blog·Published</div>
+      <div class="status">博客·已发布</div>
     </div>
     <div class="icons">
       <button>

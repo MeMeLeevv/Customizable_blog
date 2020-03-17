@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-
+import axios from 'axios'
 import 'normalize.css'
 import './assets/css/iconfont/iconfont.css'
 import ElementUI from 'element-ui'
@@ -11,7 +11,7 @@ import './assets/css/theme/index.css'
 import '@/styles/index.scss' // global css
 
 import './icons' // icon
-
+Vue.prototype.$axios = axios
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 

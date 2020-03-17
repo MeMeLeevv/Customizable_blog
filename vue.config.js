@@ -24,16 +24,16 @@ const config = {
       warnings: false,
       errors: true
     },
-    hotOnly: true
-    /* proxy: {
+    hotOnly: true,
+    proxy: {
       '/api': { //  跨域，这里假设有个api地址，前端请求时都要加上 /api/*** ，这里检测到有 /api 时就会执行这里，将 /api/*** 替换成 http://localhost:8080/***
-        target: 'http://localhost:8080',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
         }
       }
-    } */
+    }
   },
   // 配置多个代理
   parallel: require('os').cpus().length > 1,

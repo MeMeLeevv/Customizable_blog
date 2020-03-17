@@ -5,9 +5,12 @@
     </div>
     <p class="title">{{title}}</p>
     <div class="contain">
-      <span class="choice">login</span>
-      or
-      <span class="choice">register</span>
+      <div class="content">{{content}}</div>
+      <div class="bottom">
+        <span class="choice" @click="$emit('clickBtn1')">{{button1}}</span>
+        or
+        <span class="choice" @click="$emit('clickBtn2')">{{button2}}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -16,14 +19,15 @@ export default {
   name: 'titlelog',
   props: {
     title: String,
+    button1: String,
+    button2: String,
+    content: String,
     show: Boolean
   },
   data () {
-    return {
-    }
+    return {}
   },
-  watch: {
-  },
+  watch: {},
   created () {},
   computed: {},
   mounted () {},
@@ -33,7 +37,7 @@ export default {
 <style lang="scss" scoped>
 .titlelog {
   width: 200px;
-  padding: 10px 10px 30px 10px;
+  padding: 10px;
   text-align: center;
   box-shadow: $shadow;
   .quit {
@@ -55,13 +59,21 @@ export default {
   .contain {
     color: $font_tip;
     font-size: 16px;
-    .choice {
-      padding: 8px;
-      background: #bbd3f9;
-      border-radius: 5px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
+    .content {
+      margin-bottom: 20px;
+      word-wrap: break-word;
+      line-height: 22px;
+    }
+    .bottom {
+      height: 34px;
+      .choice {
+        padding: 8px;
+        background: $darkMColor;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
     }
   }
 }

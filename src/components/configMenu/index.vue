@@ -1,13 +1,13 @@
 <template>
   <div class="ConfigMenu">
-    <div class="menu_item" v-for="(item, index) in menuData" :key="index">
+    <div class="menu_item" :style="subMenu ? 'font-size: 16px;font-weight: 500;' : ''" v-for="(item, index) in menuData" :key="index">
       <router-link :to="item.path">
         <div @mouseenter="toggleHover(index)" @mouseleave="toggleHover(index)">
           <span ref="text">{{item.name}}</span>
           <div
             v-if="showLine"
             class="slide_line"
-            :style="`width: ${item.hover ? item.width: '0'}px`"
+            :style="`width: ${item.hover ? item.width: '0'}px;${subMenu ? 'border-bottom: 2px solid rgb(49, 49, 49);' : ''}`"
           ></div>
         </div>
       </router-link>
@@ -18,7 +18,11 @@
 export default {
   name: 'ConfigMenu',
   props: {
-    menuData: Array
+    menuData: Array,
+    subMenu: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {

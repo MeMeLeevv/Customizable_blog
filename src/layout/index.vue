@@ -1,6 +1,8 @@
 <template>
   <div class="Layout">
-    <router-view class="sidebar" />
+    <transition name="left-fade">
+      <router-view class="sidebar" />
+    </transition>
     <div class="main" ref="main">
       <transition name="slide-fade">
         <div class="triangle" v-show="triangleShow" @click.stop="shrink">
@@ -8,12 +10,14 @@
         </div>
       </transition>
       <toolbar @fullpage="fullpage" />
+      <navbar></navbar>
       <router-view name="main" />
     </div>
   </div>
 </template>
 <script>
 import toolbar from '@/layout/toolbar'
+import navbar from '@/components/navbar'
 import scssVar from '@/styles/variables.scss'
 export default {
   name: 'Layout',
@@ -43,11 +47,21 @@ export default {
     }
   },
   components: {
-    toolbar
+    toolbar, navbar
   }
 }
 </script>
 <style lang="scss" scoped>
+.left-fade-enter-active,.left-fade-leave-active {
+  position: absolute;
+  transition: all .4s ease;
+}
+.left-fade-enter, .left-fade-leave-to
+/* .slide-fade-leave-active 用于 2.1.8 以下版本 */ {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
 .slide-fade-enter-active {
   transition: all .8s ease-in;
 }

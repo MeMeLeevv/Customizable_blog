@@ -12,27 +12,27 @@ export default {
     return {
       menuData: [
         {
-          name: 'Blogs',
+          name: '博客',
           hover: false,
           path: '/config/BlogsSettings'
         }, {
-          name: 'Design',
+          name: '设计',
           hover: false,
           path: '/config/Design'
         }, {
-          name: 'Comments',
+          name: '评论',
           hover: false,
           path: '/config/CommentsSettings'
         }, {
-          name: 'Likes',
+          name: '喜欢',
           hover: false,
           path: '/config/Likes'
         }, {
-          name: 'Settings',
+          name: '设置',
           hover: false,
           path: '/config/BlogsSettings'
         }, {
-          name: 'Helps',
+          name: '帮助',
           hover: false,
           path: '/config/BlogsSettings'
         }
