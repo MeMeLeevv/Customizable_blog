@@ -41,7 +41,7 @@ export default {
     shrink () {
       this.$refs.main.style.top = scssVar.pagePadding
       this.$refs.main.style.right = scssVar.pagePadding
-      this.$refs.main.style.width = 'calc(100% - 358px)'
+      this.$refs.main.style.width = 'calc(100% - 412px)'
       this.$refs.main.style.height = `calc(100% - ${scssVar.page2Padding})`
       this.triangleShow = false
     }
@@ -82,13 +82,13 @@ export default {
   background-size: cover;
   color: $font_color;
   .sidebar {
-    width: 342px;
+    width: 396px;
     height: 100%;
     padding: $page2Padding;
     overflow: hidden;
   }
   .main {
-    width: calc(100% - 358px);
+    width: calc(100% - 412px);
     height: calc(100% - 32px);
     position: absolute;
     top: $pagePadding;
@@ -96,6 +96,7 @@ export default {
     background-color: white;
     box-shadow: $shadow;
     transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+    z-index: 10;
     .triangle {
       position: fixed;
       top: -55px;

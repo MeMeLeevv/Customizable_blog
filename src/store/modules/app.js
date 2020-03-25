@@ -3,6 +3,7 @@ import Cookies from 'js-cookie'
 const state = {
   showLogin0Regis: false,
   showLogin: true,
+  isEditState: true,
   sidebar: {
     opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
     withoutAnimation: false
@@ -20,6 +21,9 @@ const mutations = {
     } else {
       Cookies.set('sidebarStatus', 0)
     }
+  },
+  SET_ISEDITSTATE: (state, isEditState) => {
+    state.isEditState = isEditState
   },
   SET_SHOWLOGIN0REGIS: (state, showLogin0Regis) => {
     state.showLogin0Regis = showLogin0Regis
@@ -42,6 +46,9 @@ const mutations = {
 }
 
 const actions = {
+  isEditState ({ commit }, isEditState) {
+    commit('SET_ISEDITSTATE', isEditState)
+  },
   setLogin0Regis ({ commit }, setLogin0Regis) {
     commit('SET_SHOWLOGIN0REGIS', setLogin0Regis)
   },

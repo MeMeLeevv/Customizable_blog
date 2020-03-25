@@ -1,12 +1,12 @@
 <template>
   <div class="Design">
-    <div class="back" @click="$router.push('/index')"><span class="svg"><svg-icon class="arrow" icon-class="arrow" /><svg-icon class="minus" icon-class="minus" /></span> 主页</div>
-    <h2 class="title">设计</h2>
+    <configHeader backRouter="/" lastTitle="首页" nowTitle="设计"></configHeader>
     <configMenu :subMenu="true" class="menu" :menuData="menuData" />
   </div>
 </template>
 <script>
 import configMenu from '@/components/configMenu'
+import configHeader from '@/components/configHeader'
 
 export default {
   name: 'Design',
@@ -41,51 +41,12 @@ export default {
   mounted () {},
   methods: {},
   components: {
-    configMenu
+    configMenu, configHeader
   }
 }
 </script>
 <style lang="scss" scoped>
 .Design {
-  .back {
-    height: 22px;
-    vertical-align: top;
-    .svg {
-    position: relative;
-    margin-right: 17px;
-    font-weight: 700;
-    font-size: 18px;
-    line-height: 22px;
-    .arrow {
-      transform: rotate(180deg);
-      vertical-align: top;
-      position: absolute;
-      left: 0;
-      top: 1px;
-      transition: left .4s;
-    }
-    .minus {
-      position: absolute;
-      vertical-align: top;
-      left: -6px;
-      top: 1px;
-      transform: scaleX(0);
-      transition: transform .4s;
-    }
-  }
-  }
-  .back:hover {
-    cursor: pointer;
-    .arrow {
-      left: -10px;
-    }
-    .minus {
-      left: -6px;
-      transform: scaleX(1);
-    }
-  }
-  .title {
-    margin-top: 40px;
-  }
+
 }
 </style>
