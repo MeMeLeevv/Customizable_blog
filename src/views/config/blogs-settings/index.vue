@@ -8,11 +8,21 @@
       <svg-icon class="icon" icon-class="search" />
       <input placeholder="搜索项目..." type="search" />
     </div>
-    <div class="tabbar" @click="requestArticle"><!-- 点击tabbar高亮，tag的界面修改 -->
-      <span class="item" data-request="all">所有</span>
-      <span class="item" data-request="draft">草稿</span>
-      <span class="item" data-request="delete">垃圾桶</span>
-      <span class="item" data-request="tags">分类</span>
+    <div class="tabbar" @click="requestArticle($event)">
+      <!-- 点击tabbar高亮，tag的界面修改 -->
+      <span :class="`${requestClass === 'all' ? 'active' : ''} item`" data-request="all">所有</span>
+      <span :class="`${requestClass === 'draft' ? 'active' : ''} item`" data-request="draft">草稿</span>
+      <span :class="`${requestClass === 'delete' ? 'active' : ''} item`" data-request="delete">垃圾桶</span>
+      <span ref="tags" :class="`${requestClass === 'tags' ? 'active' : ''} item`" data-request="tags">分类</span>
+    </div>
+    <div v-if="requestClass === 'tags'" class="tagsList" @click="requestTagArt($event)">
+      <span
+        v-for="(item, index) in tags"
+        :key="index"
+        :data-request="item"
+        :class="`${requestTag === item ? 'active' : ''}`"
+        class="tag"
+      >{{item}}</span>
     </div>
     <div class="showBlog">
       <div
@@ -52,6 +62,17 @@ export default {
   data () {
     return {
       requestClass: 'all', // draft/delete/tags
+      requestTag: '',
+      tags: [
+        'html5',
+        'css3',
+        'js',
+        'node.js',
+        'vue.js',
+        'mongodb',
+        'vue.js',
+        'mongodb'
+      ],
       blogData: [
         {
           title: '粉彩35344444444444444444444444444444444444444444444',
@@ -68,7 +89,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a0307a0/1565790249701/?format=300w',
+            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a03079c/1565790253775/?format=300w',
           showEditBtn: false
         },
         {
@@ -77,7 +98,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a0307a0/1565790249701/?format=300w',
+            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a03079e/1584532416701/?format=300w',
           showEditBtn: false
         },
         {
@@ -86,7 +107,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a0307a0/1565790249701/?format=300w',
+            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a03079a/1565790257584/?format=300w',
           showEditBtn: false
         },
         {
@@ -103,11 +124,32 @@ export default {
   },
   created () {},
   computed: {},
+  watch: {
+    requestClass: {
+      handler (newV, oldV) {
+        if (newV === oldV || !newV) return // 重复点击或无效点击
+        if (newV === 'tags' && this.tags.length > 0) { // 如果点击了分类，默认转到第一个tag（如果有tags的话）
+          this.requestTag = this.tags[0]
+        } else {
+          console.log('pull 博文' + newV)
+        }
+      },
+      immediate: true
+    },
+    requestTag: {
+      handler (newV, oldV) {
+        if (newV === oldV || !newV) return // 重复点击或无效点击
+        console.log('pull 标签' + newV)
+      }
+    }
+  },
   mounted () {},
   methods: {
     requestArticle (e) {
-      console.log(e)
-      console.log(e.target.dataset.request)
+      this.requestClass = e.target.dataset.request
+    },
+    requestTagArt (e) {
+      this.requestTag = e.target.dataset.request
     }
   },
   components: {
@@ -167,20 +209,42 @@ export default {
     height: 44px;
     line-height: 44px;
     text-align: center;
+    .active {
+      background: #e4e4e4;
+    }
     .item {
       width: 25%;
       display: inline-block;
       font-size: 11px;
-      border-left: none;
+      border-left: 1px solid #f6f6f6;
+      font-weight: 600;
     }
     .item:hover {
       cursor: pointer;
       background: #e4e4e4;
     }
   }
+  .tagsList {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    .tag {
+      padding: 10px;
+      font-size: 11px;
+      border-radius: 20px;
+    }
+    .active {
+      background: #e4e4e4;
+    }
+    .tag:hover {
+      background: #e4e4e4;
+      cursor: pointer;
+    }
+  }
   .showBlog {
     margin: 0 -32px;
-    max-height: 495px;
+    height: 495px;
     overflow-y: auto;
     overflow-x: hidden;
     background: #f6f6f6;

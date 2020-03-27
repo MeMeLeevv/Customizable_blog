@@ -85,6 +85,7 @@ export default {
     width: 396px;
     height: 100%;
     padding: $page2Padding;
+    padding-bottom: 16px;
     overflow: hidden;
   }
   .main {
