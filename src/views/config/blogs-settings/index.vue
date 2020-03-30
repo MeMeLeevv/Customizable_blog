@@ -24,7 +24,7 @@
         class="tag"
       >{{item}}</span>
     </div>
-    <div class="showBlog">
+    <div class="showBlog" style="height: calc(100vh - 245px);">
       <div
         v-for="(item, index) in blogData"
         :key="index"
@@ -244,7 +244,6 @@ export default {
   }
   .showBlog {
     margin: 0 -32px;
-    height: 495px;
     overflow-y: auto;
     overflow-x: hidden;
     background: #f6f6f6;

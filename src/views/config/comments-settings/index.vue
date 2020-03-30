@@ -22,7 +22,7 @@
       <div :class="`${requireComments === 'all' ? 'active' : ''} item`" data-request="all">所有</div>
       <div :class="`${requireComments === 'beReported' ? 'active' : ''} item`" title="被其他用户举报" data-request="beReported">被标记</div>
     </div>
-    <div class="commentWrap">
+    <div class="commentWrap" style="height: calc(100vh - 203px)">
       <div
         class="item"
         v-for="(item,index) in comments"
@@ -334,7 +334,6 @@ export default {
     border-bottom: 1px solid #e4e4e4;
     margin: 0 -33px;
     padding: 0 33px 0;
-    height: 583px;
     overflow-y: auto;
     overflow-x: hidden;
     background: #f6f6f6;

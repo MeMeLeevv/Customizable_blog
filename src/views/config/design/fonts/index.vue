@@ -2,10 +2,38 @@
   <div class="Fonts">
     <configHeader backRouter="/config/Design" lastTitle="设计" nowTitle="字体"></configHeader>
     <div class="tabbar" ref="tabbar" @click="switchTab">
-      <span class="item" :data-index="0">无衬线字体</span>
-      <span class="item" :data-index="1">衬线</span>
-      <span class="item" :data-index="2">混合的</span>
-      <span v-if="lineWAL[0].lineWidth" class="line" :style="`width: ${lineWAL[tabIndex].lineWidth}px; left: ${lineWAL[tabIndex].lineLeft}px`"></span>
+      <span class="item" :data-index="0">汉仪</span>
+      <span class="item" :data-index="1">方正</span>
+      <span class="item" :data-index="2">字体视界</span>
+      <span
+        v-if="showLine"
+        class="line"
+        :style="`width: ${lineWAL[tabIndex].lineWidth}px; left: ${lineWAL[tabIndex].lineLeft}px`"
+      ></span>
+    </div>
+    <div class="showFontWrap" style="height: calc(100vh - 234px);">
+      <!-- 点击后在store中更换body里font的className -->
+      <div
+        :class="`item ${usingFontName === item.fontName ? 'active' : ''} ${item.fontName}`"
+        v-for="(item, index) in showFonts"
+        :key="index"
+        @click="usingFontName = item.fontName"
+      >
+        <div :class="`title ${item.fontName}`">{{item.title}}</div>
+        <div class="content">{{item.content}}</div>
+        <div class="sizeFixed" v-if="usingFontName === item.fontName">
+          <span>基本尺寸</span>
+          <span>
+            <input type="text" @blur="checkSize(item)" class="font" v-model="item.size" />
+            <span :class="`icon ${minusUnable ? 'unable' : ''}`" @click="minus(item)">
+              <svg-icon class="svg" icon-class="minus" />
+            </span>
+            <span :class="`icon ${addUnable ? 'unable' : ''}`" @click="add(item)">
+              <svg-icon class="svg" icon-class="add" />
+            </span>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -17,17 +45,76 @@ export default {
   data () {
     return {
       tabsWidth: [],
+      showLine: false,
       tabIndex: 0,
-      lineWAL: [{
-        lineWidth: 0,
-        lineLeft: 0
-      }]
+      normalSize: '16px',
+      addUnable: false,
+      minusUnable: false,
+      usingFontName: 'webfont_phh',
+      lineWAL: [
+        {
+          lineWidth: 0,
+          lineLeft: 0
+        }
+      ],
+      showFonts: [],
+      fonts: [
+        {
+          fontName: 'HYXinRenWenSong55W',
+          title: '汉仪新人文宋 55W',
+          content: '自古逢秋悲寂寥',
+          size: '16px',
+          index: 0
+        },
+        {
+          fontName: 'HYSuJinLiW',
+          title: '汉仪素金隶 W',
+          content: '自古逢秋悲寂寥',
+          size: '16px',
+          index: 0
+        },
+        {
+          fontName: 'FZMiaoWuJW',
+          title: '方正喵呜简体',
+          content: '自古逢秋悲寂寥',
+          size: '16px',
+          index: 1
+        },
+        {
+          fontName: 'FZSJ-ODZKJW',
+          title: '方正手迹-欧蝶正楷',
+          content: '自古逢秋悲寂寥',
+          size: '16px',
+          index: 1
+        },
+        {
+          fontName: 'yplly',
+          title: '印品溜溜圆',
+          content: '自古逢秋悲寂寥',
+          size: '16px',
+          index: 2
+        },
+        {
+          fontName: 'x-yht',
+          title: 'X-幼黑体',
+          content: '自古逢秋悲寂寥',
+          size: '16px',
+          index: 2
+        }
+      ]
     }
   },
-  created () {
+  created () {},
+  watch: {
+    tabIndex: {
+      handler (newV) {
+        this.showFonts = this.fonts.filter(item => item.index === Number(newV))
+        console.log(typeof (newV), 'show')
+      },
+      immediate: true
+    }
   },
-  computed: {
-  },
+  computed: {},
   mounted () {
     this.$nextTick(function () {
       const children = this.$refs.tabbar.children
@@ -35,10 +122,10 @@ export default {
       for (let i = 0; i < children.length; i++) {
         if (children[i].className === 'item') {
           this.lineWAL[i] = {
-            lineWidth: 0,
+            lineWidth: children[i].clientWidth,
             lineLeft: 0
           }
-          this.lineWAL[i].lineWidth = children[i].clientWidth
+          this.showLine = true
           if (i > 0) {
             left += children[i - 1].clientWidth + 16
           }
@@ -49,6 +136,47 @@ export default {
     })
   },
   methods: {
+    minus (item) { // 在store中font-size变化rem
+      let num = Number(item.size.match(/^(\d+)px$/)[1])
+      this.addUnable = false
+      if (num === 12) {
+        this.minusUnable = true
+        return
+      } else {
+        num--
+        if (num === 12) {
+          this.minusUnable = true
+        } else {
+          this.minusUnable = false
+        }
+      }
+      item.size = `${num}px`
+    },
+    add (item) {
+      let num = Number(item.size.match(/^(\d+)px$/)[1])
+      this.minusUnable = false
+      if (num === 24) {
+        this.addUnable = true
+        return
+      } else {
+        num++
+        if (num === 24) {
+          this.addUnable = true
+        } else {
+          this.addUnable = false
+        }
+      }
+      item.size = `${num}px`
+    },
+    checkSize (item) {
+      const reg = /^(\d+)px$/
+      const result = item.size.match(reg)
+      if (result) {
+        console.log(result[1])
+      } else {
+        console.log('uncheck')
+      }
+    },
     switchTab (e) {
       this.tabIndex = e.target.dataset.index
     }
@@ -82,6 +210,71 @@ export default {
       height: 2px;
       background-color: rgb(49, 49, 49);
       transition: all 350ms cubic-bezier(0.66, 0, 0.34, 1);
+    }
+  }
+  .showFontWrap {
+    overflow-x: hidden;
+    overflow-y: auto;
+    .item {
+      width: 260px;
+      height: 100px;
+      margin-bottom: 16px;
+      position: relative;
+      padding: 25px 22px 13px;
+      background: white;
+      transition: height 0.3s;
+      cursor: pointer;
+      .title {
+        margin-bottom: 6px;
+        font-size: 20px;
+      }
+      .content {
+        margin-bottom: 13px;
+        font-size: 16px;
+        color: #313131;
+        line-height: 20px;
+        font-weight: 300;
+      }
+      .sizeFixed {
+        display: flex;
+        justify-content: space-between;
+        height: 44px;
+        line-height: 44px;
+        font-size: 14px;
+        color: #3e3e3e;
+        font-weight: 400;
+        .icon {
+          display: inline-block;
+          width: 32px;
+          height: 44px;
+          text-align: center;
+          font-size: 18px;
+        }
+        .unable {
+          cursor: not-allowed;
+          .svg {
+            fill: #d6d6d6;
+          }
+        }
+        .font {
+          width: 44px;
+          padding: 0 6px;
+          font-size: 14px;
+          font-weight: 300;
+          text-align: center;
+          line-height: 22px;
+          min-height: 22px;
+          border-radius: 5px;
+          text-overflow: ellipsis;
+        }
+        .font:focus {
+          background: rgb(235, 235, 235);
+        }
+      }
+    }
+    .active {
+      height: 140px;
+      border: 1px solid #313131;
     }
   }
 }

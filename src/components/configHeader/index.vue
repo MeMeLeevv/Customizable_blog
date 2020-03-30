@@ -1,16 +1,20 @@
 <template>
   <div class="configHeader">
-    <div class="back" @click="$router.push(backRouter)"><span class="svg"><svg-icon class="arrow" icon-class="arrow" /><svg-icon class="minus" icon-class="minus" /></span> {{lastTitle}}</div>
+    <div class="back" @click="$router.push(backRouter)">
+      <span class="svg">
+        <svg-icon class="arrow" icon-class="arrow" />
+        <svg-icon class="minus" icon-class="minus" />
+      </span>
+      {{lastTitle}}
+    </div>
     <h2 class="title">{{nowTitle}}</h2>
   </div>
 </template>
 <script>
-
 export default {
   name: 'configHeader',
   data () {
-    return {
-    }
+    return {}
   },
   props: {
     backRouter: String,
@@ -21,8 +25,7 @@ export default {
   computed: {},
   mounted () {},
   methods: {},
-  components: {
-  }
+  components: {}
 }
 </script>
 <style lang="scss" scoped>
@@ -31,28 +34,29 @@ export default {
     height: 22px;
     vertical-align: top;
     .svg {
-    position: relative;
-    margin-right: 17px;
-    font-weight: 700;
-    font-size: 18px;
-    line-height: 22px;
-    .arrow {
-      transform: rotate(180deg);
+      position: relative;
+      margin-right: 17px;
       vertical-align: top;
-      position: absolute;
-      left: 0;
-      top: 1px;
-      transition: left .4s;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 22px;
+      .arrow {
+        transform: rotate(180deg);
+        vertical-align: top;
+        position: absolute;
+        left: 0;
+        top: 1px;
+        transition: left 0.4s;
+      }
+      .minus {
+        position: absolute;
+        vertical-align: top;
+        left: -6px;
+        top: 1px;
+        transform: scaleX(0);
+        transition: transform 0.4s;
+      }
     }
-    .minus {
-      position: absolute;
-      vertical-align: top;
-      left: -6px;
-      top: 1px;
-      transform: scaleX(0);
-      transition: transform .4s;
-    }
-  }
   }
   .back:hover {
     cursor: pointer;

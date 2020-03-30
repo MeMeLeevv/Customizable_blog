@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'FZMiaoWuS-R-GB';
+    src: url('FZMWJW--GB1-0.eot');
+    src: url('FZMWJW--GB1-0.eot?#iefix') format('embedded-opentype'),
+        url('FZMWJW--GB1-0.woff2') format('woff2'),
+        url('FZMWJW--GB1-0.woff') format('woff'),
+        url('FZMWJW--GB1-0.svg#FZMWJW--GB1-0') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+

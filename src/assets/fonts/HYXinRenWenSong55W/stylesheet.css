@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'HYXinRenWenSong 55W';
+    src: url('HYXinRenWenSong-EEW.eot');
+    src: url('HYXinRenWenSong-EEW.eot?#iefix') format('embedded-opentype'),
+        url('HYXinRenWenSong-EEW.woff2') format('woff2'),
+        url('HYXinRenWenSong-EEW.woff') format('woff'),
+        url('HYXinRenWenSong-EEW.svg#HYXinRenWenSong-EEW') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+

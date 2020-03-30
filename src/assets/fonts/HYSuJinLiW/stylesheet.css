@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'HYSuJinLi W';
+    src: url('HYSuJinLi-W.eot');
+    src: url('HYSuJinLi-W.eot?#iefix') format('embedded-opentype'),
+        url('HYSuJinLi-W.woff2') format('woff2'),
+        url('HYSuJinLi-W.woff') format('woff'),
+        url('HYSuJinLi-W.svg#HYSuJinLi-W') format('svg');
+    font-weight: 300;
+    font-style: normal;
+}
+
