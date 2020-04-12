@@ -104,15 +104,18 @@ export default {
   opacity: 0;
 }
 .navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
   height: 50px;
   display: flex;
   flex-direction: row-reverse;
   padding-right: 80px;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.3),
-    rgba(168, 194, 248, 0.3)
-  );
+  button{
+    background: none;
+  }
   .margin {
     margin: 10px;
   }

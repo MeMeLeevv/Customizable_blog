@@ -24,7 +24,7 @@ export default {
           path: '/config/Design/Colors'
         },
         {
-          name: '2.5D卡通人物',
+          name: 'live2d',
           hover: false,
           path: '/config/Design/Cartoons'
         },

@@ -14,6 +14,9 @@ const getters = {
   desc: state => state.user.desc,
   roles: state => state.user.roles,
   permission_routes: state => state.permission.routes,
-  errorLogs: state => state.errorLog.logs
+  errorLogs: state => state.errorLog.logs,
+  model: state => state.live2d.model,
+  modelWidth: state => state.live2d.width,
+  modelHeight: state => state.live2d.height
 }
 export default getters

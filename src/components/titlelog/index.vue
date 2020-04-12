@@ -40,6 +40,7 @@ export default {
   padding: 10px;
   text-align: center;
   box-shadow: $shadow;
+  background:white;
   .quit {
     position: absolute;
     top: 3px;

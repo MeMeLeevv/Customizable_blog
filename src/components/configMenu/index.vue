@@ -1,7 +1,7 @@
 <template>
   <div class="ConfigMenu">
     <div class="menu_item" :style="subMenu ? 'font-size: 16px;font-weight: 500;' : ''" v-for="(item, index) in menuData" :key="index">
-      <router-link :to="item.path">
+      <router-link v-if="!isAddComponents" :to="item.path">
         <div @mouseenter="toggleHover(index)" @mouseleave="toggleHover(index)">
           <span ref="text">{{item.name}}</span>
           <div
@@ -11,6 +11,16 @@
           ></div>
         </div>
       </router-link>
+      <div v-else>
+        <div @mouseenter="toggleHover(index)" @mouseleave="toggleHover(index)" @click="clickItem(index)">
+          <span ref="text">{{item.name}}</span>
+          <div
+            v-if="showLine"
+            class="slide_line"
+            :style="`width: ${item.hover || activeItem === item.path? item.width: '0'}px;border-bottom: 2px solid rgb(49, 49, 49);`"
+          ></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -22,14 +32,23 @@ export default {
     subMenu: {
       type: Boolean,
       default: false
+    },
+    isAddComponents: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
-      showLine: false
+      showLine: false,
+      activeItem: ''
     }
   },
-  created () {},
+  created () {
+    if (this.isAddComponents) {
+      this.activeItem = this.menuData[0].path
+    }
+  },
   computed: {},
   mounted () {
     this.$nextTick(function () {
@@ -44,6 +63,10 @@ export default {
   methods: {
     toggleHover (index) {
       this.menuData[index].hover = !this.menuData[index].hover
+    },
+    clickItem (index) {
+      this.activeItem = this.menuData[index].path
+      this.$emit('menuClick', this.activeItem)
     }
   }
 }

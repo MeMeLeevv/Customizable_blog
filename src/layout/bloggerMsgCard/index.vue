@@ -1,5 +1,6 @@
 
-<template> <!-- 是否可以将此卡片放在layout组件中，这样就不用每添加一个页面就要加这个组件了 -->
+<template>
+  <!-- 是否可以将此卡片放在layout组件中，这样就不用每添加一个页面就要加这个组件了 -->
   <div
     :class="`bloggerMsgCard personalCart ${showPersonalCart ? 'showCart' : ''}`"
     @mouseenter="$store.state.app.isEditState && !editState && (showMap = true)"
@@ -372,11 +373,11 @@ export default {
 }
 
 .personalCart {
-  position: relative;
+  position: absolute;
   display: inline-block;
   z-index: 200;
   left: -290px;
-  top: 50px;
+  top: 200px;
   transition: left 1s;
   .map {
     position: absolute;
@@ -385,6 +386,7 @@ export default {
     z-index: 200;
     width: 100%;
     height: 100%;
+    border-radius: 10px;
     text-align: center;
     background: rgba($color: #000000, $alpha: 0.2);
     .avatarMap {
@@ -416,6 +418,7 @@ export default {
     padding: 60px 10px 10px 20px;
     border-radius: 10px;
     box-shadow: $shadow;
+    background: white;
     text-align: center;
     .editSvgG {
       position: absolute;

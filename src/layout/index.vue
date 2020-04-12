@@ -10,14 +10,13 @@
         </div>
       </transition>
       <toolbar @fullpage="fullpage" />
-      <navbar></navbar>
+
       <router-view name="main" />
     </div>
   </div>
 </template>
 <script>
 import toolbar from '@/layout/toolbar'
-import navbar from '@/components/navbar'
 import scssVar from '@/styles/variables.scss'
 export default {
   name: 'Layout',
@@ -47,7 +46,7 @@ export default {
     }
   },
   components: {
-    toolbar, navbar
+    toolbar
   }
 }
 </script>
@@ -102,7 +101,7 @@ export default {
       position: fixed;
       top: -55px;
       right: -55px;
-      z-index: 100;
+      z-index: 200;
       width: 0px;
       height: 0px;
       border: 55px solid transparent;

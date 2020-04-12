@@ -24,7 +24,7 @@
         class="tag"
       >{{item}}</span>
     </div>
-    <div class="showBlog" style="height: calc(100vh - 245px);">
+    <div class="showBlog" :style="`height: ${requestClass === 'tags' && tags.length > 0 ? 'calc(100vh - 245px - 64px)' : 'calc(100vh - 245px)'} ;`">
       <div
         v-for="(item, index) in blogData"
         :key="index"
@@ -63,6 +63,7 @@ export default {
     return {
       requestClass: 'all', // draft/delete/tags
       requestTag: '',
+      height: '',
       tags: [
         'html5',
         'css3',

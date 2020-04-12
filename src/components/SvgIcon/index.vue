@@ -24,6 +24,7 @@ export default {
 
 <style lang="sass">
 .svg-icon
+  display:inline-block
   width: 1em
   height: 1em
   vertical-align: -0.15em

@@ -46,11 +46,11 @@ export default {
     return {
       tabsWidth: [],
       showLine: false,
-      tabIndex: 0,
+      tabIndex: 0, // 此时被展示的tab的index
       normalSize: '16px',
       addUnable: false,
       minusUnable: false,
-      usingFontName: 'webfont_phh',
+      usingFontName: 'webfont_phh', // 正在使用的字体
       lineWAL: [
         {
           lineWidth: 0,
@@ -60,11 +60,11 @@ export default {
       showFonts: [],
       fonts: [
         {
-          fontName: 'HYXinRenWenSong55W',
+          fontName: 'HYXinRenWenSong55W', // 对应字体包指定的class
           title: '汉仪新人文宋 55W',
           content: '自古逢秋悲寂寥',
           size: '16px',
-          index: 0
+          index: 0 // 对应tab
         },
         {
           fontName: 'HYSuJinLiW',
@@ -108,7 +108,7 @@ export default {
   watch: {
     tabIndex: {
       handler (newV) {
-        this.showFonts = this.fonts.filter(item => item.index === Number(newV))
+        this.showFonts = this.fonts.filter(item => item.index === Number(newV)) // 对应tab下该展示的字体
         console.log(typeof (newV), 'show')
       },
       immediate: true
@@ -119,7 +119,7 @@ export default {
     this.$nextTick(function () {
       const children = this.$refs.tabbar.children
       let left = 0
-      for (let i = 0; i < children.length; i++) {
+      for (let i = 0; i < children.length; i++) { // dom渲染好后开始计算每个tab的width和offsetLeft，记得加上padding
         if (children[i].className === 'item') {
           this.lineWAL[i] = {
             lineWidth: children[i].clientWidth,
@@ -136,7 +136,7 @@ export default {
     })
   },
   methods: {
-    minus (item) { // 在store中font-size变化rem
+    minus (item) { // 字体减小 在store中font-size变化rem
       let num = Number(item.size.match(/^(\d+)px$/)[1])
       this.addUnable = false
       if (num === 12) {
@@ -152,7 +152,7 @@ export default {
       }
       item.size = `${num}px`
     },
-    add (item) {
+    add (item) { // 字体变大
       let num = Number(item.size.match(/^(\d+)px$/)[1])
       this.minusUnable = false
       if (num === 24) {
@@ -168,7 +168,7 @@ export default {
       }
       item.size = `${num}px`
     },
-    checkSize (item) {
+    checkSize (item) { // input框看用户是否填对了
       const reg = /^(\d+)px$/
       const result = item.size.match(reg)
       if (result) {
@@ -177,7 +177,7 @@ export default {
         console.log('uncheck')
       }
     },
-    switchTab (e) {
+    switchTab (e) { /// 点击切换tab
       this.tabIndex = e.target.dataset.index
     }
   },
