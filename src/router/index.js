@@ -30,7 +30,8 @@ export const constantRoutes = [ // 省略了:id,记得补上
         path: 'Blogs',
         name: 'Blogs',
         components: {
-          main: () => import('@/views/blogs/index')
+          main: () => import('@/views/detailBlogs/index'),
+          default: () => import('@/views/config/index')
         },
         meta: {
           title: 'blogs',

@@ -24,14 +24,9 @@ export default {
           path: '/config/Design/Colors'
         },
         {
-          name: 'live2d',
+          name: 'live2d看板娘',
           hover: false,
           path: '/config/Design/Cartoons'
-        },
-        {
-          name: '鼠标箭头',
-          hover: false,
-          path: '/config/Design/Cursors'
         }
       ]
     }

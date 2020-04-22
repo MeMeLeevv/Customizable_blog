@@ -51,7 +51,7 @@ export default {
         password: '',
         passwordComfirm: '',
         blogId: '',
-        avatar: 'https://pic3.zhimg.com/80/v2-99351b87b1e0a9aa9a9d07bba0318376_720w.jpg',
+        avatar: 'https://gss0.baidu.com/-Po3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/8cb1cb13495409231efd8e7d9458d109b3de4919.jpg',
         starIdArr: [],
         desc: '这个人很懒，什么也没留下',
         name: '小可爱一枚~' // 在navbar里也可以修改个人信息，无须点开博客设置

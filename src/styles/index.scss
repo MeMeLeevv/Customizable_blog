@@ -73,3 +73,13 @@ input, textarea {
   resize: none;
   background: none;
 }
+
+.noneBorder .el-input__inner {
+  border: none;
+  border-radius: 4px;
+  background-color: $page_bg;
+  font-size: 14px;
+}
+.lightColor.el-divider {
+  background-color: $mainColor;
+}

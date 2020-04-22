@@ -47,7 +47,7 @@ export default {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 100;
+  z-index: 200;
   width: 100vw;
   height: 100vh;
   background: rgba($color: #000000, $alpha: 0.5);

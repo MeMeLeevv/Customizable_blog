@@ -8,6 +8,7 @@
       <addComponents v-if="showAddComponents" @clickNewSection="clickNewSection" @closeAddComponents="showAddComponents = false"></addComponents>
     </transition>
     <div id="showBlock"></div><!-- class不行？ id才能插入 -->
+    <blogList v-if="!hideBlogList" :showEditDialog.sync="showEditDialog" @refreshBlogList="refreshBlogList"></blogList>
   </div>
 </template>
 <script>
@@ -16,14 +17,17 @@ import navbar from '@/components/navbar'
 import editPlus from '@/components/editPlus'
 import addComponents from '@/components/addComponents'
 import headlines from '@/components/addComponents/headlines'
+import blogList from '@/views/blogList'
 import Vue from 'vue'
 export default {
   name: 'index',
   data () {
     return {
+      hideBlogList: false,
       headlinesComp: null,
       showEditPlus: false,
       showAddComponents: false,
+      showEditDialog: false, // 是否显示bloglist的编辑对话框
       headlines1: {
         id: '1',
         width: '454',
@@ -58,6 +62,12 @@ export default {
   computed: {},
   mounted () {},
   methods: {
+    refreshBlogList () {
+      this.hideBlogList = true
+      setTimeout(() => {
+        this.hideBlogList = false
+      }, 100)
+    },
     clickNewSection (belong, id) {
       console.log(belong, id, 'sec')
       this.showAddComponents = false
@@ -76,7 +86,8 @@ export default {
     editPlus,
     addComponents,
     // eslint-disable-next-line vue/no-unused-components
-    headlines
+    headlines,
+    blogList
   }
 }
 </script>

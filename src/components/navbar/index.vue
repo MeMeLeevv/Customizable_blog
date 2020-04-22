@@ -146,10 +146,12 @@ export default {
       position: absolute;
       top: 130%;
       right:50%;
+      z-index: 100;
       width: 100px;
       text-align: center;
       box-shadow: $shadow;
       list-style: none;
+      background: white;
       li {
         transition: background-color .2s;
         padding: 10px;

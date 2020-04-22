@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="usingFontName">
     <live2d v-if="closeModel && showLive && !hideModel" :editState.sync="editState" @updateModel="updateModel" :showModel="showModel" @changeLive2d="showlive2d"></live2d>
     <router-view />
   </div>
@@ -14,6 +14,7 @@ export default {
   name: 'App',
   data () {
     return {
+      usingFontName: this.$store.state.app.fontFamily,
       hideModel: false,
       closeModel: this.$store.state.live2d.close,
       showLive: true,
@@ -50,6 +51,11 @@ export default {
     })
   },
   watch: {
+    '$store.state.app.fontFamily' (newV, oldV) {
+      if (newV !== oldV) {
+        this.usingFontName = newV
+      }
+    },
     '$route' (to, from) { // 记录路由的来源和去路,及时修改路由index.js对应路由下main的component
       this.from = from.path
       this.to = to.path

@@ -4,6 +4,7 @@ const state = {
   showLogin0Regis: false,
   showLogin: true,
   isEditState: true,
+  fontFamily: '',
   sidebar: {
     opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
     withoutAnimation: false
@@ -13,6 +14,9 @@ const state = {
 }
 
 const mutations = {
+  SET_FONTFAMILY: (state, font) => {
+    state.fontFamily = font
+  },
   TOGGLE_SIDEBAR: state => {
     state.sidebar.opened = !state.sidebar.opened
     state.sidebar.withoutAnimation = false
@@ -46,6 +50,9 @@ const mutations = {
 }
 
 const actions = {
+  setFontFamily ({ commit }, font) {
+    commit('SET_FONTFAMILY', font)
+  },
   isEditState ({ commit }, isEditState) {
     commit('SET_ISEDITSTATE', isEditState)
   },

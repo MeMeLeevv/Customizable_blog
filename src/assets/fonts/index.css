@@ -66,6 +66,14 @@
   url('FZSJ-ODZKJW/FZSJ-ODZKJW.svg') format('svg'); /* iOS 4.1- */
 }
 
+.FZSJ-ODZKJW {
+  font-family: "FZSJ-ODZKJW" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .yplly {
   font-family: "yplly" !important;
   font-size: 16px;
@@ -84,13 +92,7 @@
 
 
 
-.FZSJ-ODZKJW {
-  font-family: "FZSJ-ODZKJW" !important;
-  font-size: 16px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+
 
 .HYSuJinLiW {
   font-family: "HYSuJinLiW" !important;

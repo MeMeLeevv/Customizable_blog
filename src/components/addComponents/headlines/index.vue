@@ -76,6 +76,9 @@ export default {
       }
     }
     .content_wrapper {
+      color: white;
+      word-spacing: 2px;
+      letter-spacing: 1px;
       .is-hidden {
         opacity: 1;
       }

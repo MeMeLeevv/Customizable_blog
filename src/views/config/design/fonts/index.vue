@@ -17,7 +17,7 @@
         :class="`item ${usingFontName === item.fontName ? 'active' : ''} ${item.fontName}`"
         v-for="(item, index) in showFonts"
         :key="index"
-        @click="usingFontName = item.fontName"
+        @click="setFont(item.fontName)"
       >
         <div :class="`title ${item.fontName}`">{{item.title}}</div>
         <div class="content">{{item.content}}</div>
@@ -35,6 +35,9 @@
         </div>
       </div>
     </div>
+    <div class="default">
+      <button @click="setDefault" class="defaultBtn">默认</button>
+    </div>
   </div>
 </template>
 <script>
@@ -50,7 +53,7 @@ export default {
       normalSize: '16px',
       addUnable: false,
       minusUnable: false,
-      usingFontName: 'webfont_phh', // 正在使用的字体
+      usingFontName: this.$store.state.app.fontFamily, // 正在使用的字体
       lineWAL: [
         {
           lineWidth: 0,
@@ -106,6 +109,11 @@ export default {
   },
   created () {},
   watch: {
+    '$store.state.app.fontFamily' (newV, oldV) {
+      if (newV !== oldV) {
+        this.usingFontName = newV
+      }
+    },
     tabIndex: {
       handler (newV) {
         this.showFonts = this.fonts.filter(item => item.index === Number(newV)) // 对应tab下该展示的字体
@@ -136,6 +144,12 @@ export default {
     })
   },
   methods: {
+    setDefault () {
+      this.$store.dispatch('app/setFontFamily', '')
+    },
+    setFont (font) {
+      this.$store.dispatch('app/setFontFamily', font)
+    },
     minus (item) { // 字体减小 在store中font-size变化rem
       let num = Number(item.size.match(/^(\d+)px$/)[1])
       this.addUnable = false
@@ -257,7 +271,7 @@ export default {
           }
         }
         .font {
-          width: 44px;
+          width: 50px;
           padding: 0 6px;
           font-size: 14px;
           font-weight: 300;
@@ -276,6 +290,9 @@ export default {
       height: 140px;
       border: 1px solid #313131;
     }
+  }
+  .defaultBtn {
+    padding: 10px 15px;
   }
 }
 </style>

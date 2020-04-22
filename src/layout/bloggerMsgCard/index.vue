@@ -155,7 +155,7 @@ export default {
       showLinkLogo: '',
       user: {
         avatar:
-          'https://pic3.zhimg.com/80/v2-99351b87b1e0a9aa9a9d07bba0318376_720w.jpg',
+          'https://gss0.baidu.com/-Po3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/8cb1cb13495409231efd8e7d9458d109b3de4919.jpg',
         name: '小可爱一枚~',
         desc: '这个人很懒，什么也没留下'
       },
@@ -199,7 +199,7 @@ export default {
       handler (newV) {
         if (newV) {
           // 监听编辑信号，即使切换编辑状态下socialLink的数据
-          this.vmodelSocialLink = this.blogForm.socialLink
+          this.vmodelSocialLink = deepClone(this.blogForm.socialLink)
         } else {
           // 否则，置空对象
           this.vmodelSocialLink = []
@@ -240,6 +240,7 @@ export default {
       this.addLinkValue = ''
       this.linkTip = false
       this.pickLinkLogo = 'dotCircle'
+      this.vmodelSocialLink = deepClone(this.blogForm.socialLink)
     },
     showEditLink () {
       // 显示编辑链接框
@@ -252,6 +253,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        this.vmodelSocialLink.splice(index, 1)
         this.blogForm.socialLink.splice(index, 1)
       })
     },
@@ -273,7 +275,7 @@ export default {
         // 添加
         this.blogForm.socialLink.push(this.addLinkValue)
         this.blogData.socialLink = deepClone(this.blogForm.socialLink)
-
+        this.vmodelSocialLink = deepClone(this.blogForm.socialLink)
         this.socialLinkEdit = false
         this.addLinkValue = ''
         this.pickLinkLogo = 'dotCircle'
@@ -375,7 +377,7 @@ export default {
 .personalCart {
   position: absolute;
   display: inline-block;
-  z-index: 200;
+  z-index: 100;
   left: -290px;
   top: 200px;
   transition: left 1s;
@@ -487,6 +489,7 @@ export default {
       justify-content: space-evenly;
       .item {
         margin: 15px 0;
+        cursor: pointer;
         .belong {
           font-size: 12px;
         }

@@ -97,6 +97,7 @@ export default {
     box-shadow: $shadow;
     transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
     z-index: 10;
+    overflow-y: auto;
     .triangle {
       position: fixed;
       top: -55px;

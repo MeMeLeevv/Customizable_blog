@@ -138,6 +138,7 @@
     </editor-menu-bubble>
 
     <editor-content class="editor__content" :editor="editor" />
+    <!-- <button @click="getContent">获取HTML</button> -->
   </div>
 </template>
 
@@ -158,12 +159,36 @@ import {
   Link,
   Strike,
   Underline,
-  History
+  History,
+  Placeholder
 } from 'tiptap-extensions'
+import Doc from './Doc'
+import Title from './Title'
+
 export default {
+  props: {
+    content: String,
+    needTitle: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
-      editor: new Editor({
+      hideBar: false,
+      editor: null,
+      linkUrl: null,
+      linkMenuIsActive: false,
+      hideBubble: true
+    }
+  },
+  created () {
+  },
+  mounted () {
+    if (this.needTitle) {
+      this.editor = new Editor({
+        content: this.content,
+        autoFocus: false,
         extensions: [
           new Blockquote(),
           new BulletList(),
@@ -179,24 +204,68 @@ export default {
           new Italic(),
           new Strike(),
           new Underline(),
-          new History()
+          new History(),
+          new Doc(),
+          new Title(),
+          new Placeholder({
+            showOnlyCurrent: false,
+            emptyNodeText: node => {
+              if (node.type.name === 'title') {
+                return 'Give me a name'
+              }
+              return 'Write something'
+            }
+          })
+        ]
+      })
+    } else {
+      this.editor = new Editor({
+        content: this.content,
+        extensions: [
+          new Blockquote(),
+          new BulletList(),
+          new HardBreak(),
+          new Heading({ levels: [1, 2, 3] }),
+          new ListItem(),
+          new OrderedList(),
+          new HorizontalRule(),
+          new TodoItem(),
+          new TodoList(),
+          new Link(),
+          new Bold(),
+          new Italic(),
+          new Strike(),
+          new Underline(),
+          new History(),
+          new Placeholder({
+            showOnlyCurrent: false,
+            emptyNodeText: node => {
+              return 'Write something'
+            }
+          })
         ],
-        autoFocus: false,
-        content: `
-          <h2>
-            Hiding Menu Bar
-          </h2>
-          <p>
-            Click into this text to see the menu. Click outside and the menu will disappear. It's like magic.
-          </p>
-        `
-      }),
-      linkUrl: null,
-      linkMenuIsActive: false,
-      hideBubble: true
+        autoFocus: false
+      })
     }
+    setTimeout(() => {
+      // document.getElementsByClassName('detailBlogs_title')[0].onfocus = this.focus // focus和blur会被同时触发
+      // document.getElementsByClassName('detailBlogs_title')[0].onblur = this.blur
+    }, 2000)
+  },
+  watch: {
   },
   methods: {
+    focus (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
+      console.log(e, 'focus')
+      this.hideBar = true
+    },
+    blur (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
+      // this.hideBar = false
+      console.log(e, 'blur')
+    },
+    getContent () {
+      console.log(this.editor.getHTML(), 'content')
+    },
     showLinkMenu (attrs) {
       this.linkUrl = attrs.href
       this.linkMenuIsActive = true
@@ -224,6 +293,20 @@ export default {
 }
 </script>
 <style lang="scss">
+.detailBlogs_title {
+  font-weight: 500;
+  font-size: 3rem;
+}
+
+.editor *.is-empty:nth-child(1)::before,
+.editor *.is-empty:nth-child(2)::before {
+  content: attr(data-empty-text);
+  float: left;
+  color: #aaa;
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
 .menububble {
   position: absolute;
   display: flex;
@@ -418,6 +501,7 @@ export default {
   }
 }
 .menubar {
+  position: absolute;
   width: 38rem;
   height: 30px;
   line-height: 30px;

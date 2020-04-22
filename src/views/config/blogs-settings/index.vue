@@ -81,7 +81,7 @@ export default {
           class: '草稿',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a0307a0/1565790249701/?format=300w',
+            'http://up.enterdesk.com/edpic_360_360/0d/5b/13/0d5b1395af7cf6441276d37b1caf947c.jpg',
           showEditBtn: false
         },
         {
@@ -90,7 +90,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a03079c/1565790253775/?format=300w',
+            'https://tse4-mm.cn.bing.net/th?id=OIP.jLZH6cGvAFAoyAaSrbCytQHaEx&pid=Api&rs=1',
           showEditBtn: false
         },
         {
@@ -99,7 +99,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a03079e/1584532416701/?format=300w',
+            'https://tse1-mm.cn.bing.net/th?id=OIP.GeaC4usF_VB_Baxba_Qs6wHaE7&pid=Api&rs=1',
           showEditBtn: false
         },
         {
@@ -108,7 +108,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a03079a/1565790257584/?format=300w',
+            'https://tse2-mm.cn.bing.net/th?id=OIP.BCvxraCfcl9WxgvLcs2XxAAAAA&pid=Api&rs=1',
           showEditBtn: false
         },
         {
@@ -117,7 +117,7 @@ export default {
           class: '已发布',
           publicTime: '上星期三 13:14 pm',
           cover:
-            '//static1.squarespace.com/static/5e71f7ee9363663a9a194b90/5e71f857aee185235a030786/5e71f857aee185235a0307a0/1565790249701/?format=300w',
+            'http://up.enterdesk.com/edpic_360_360/0d/5b/13/0d5b1395af7cf6441276d37b1caf947c.jpg',
           showEditBtn: false
         }
       ]
