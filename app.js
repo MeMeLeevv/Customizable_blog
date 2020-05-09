@@ -44,7 +44,7 @@ app.use(session({
   resave: true,
   saveUninitialized: false, // 是否保存未初始化的会话
   cookie: {
-    maxAge: 1000 * 60 * 10, // 设置 session 的有效时间，单位毫秒
+    maxAge: 1000 * 60 * 60, // 设置 session 的有效时间，单位毫秒
   },
   store: new FileStore() // 指明使用文件存储
 }));
@@ -83,34 +83,37 @@ db.once('open', () => {
   console.log('mongodb连接成功!!!!!!!!!!!!!!!!!!!!!!!!')
   gfs = Grid(db.db, mongoose.mongo)
   gfs.collection('uploads')
+
+  /* 连接数据库后并设置好model */
+  // let { initSchema } = require('./setdbModel') // 引入配置好的model
+  let { insertdbData, finddbData, findOneAndUpdate, findByIdAndUpdate, remove, findSameCollArrData } = require('./routes/dbFuc') // 引入配置好的model
+  // insertdbData(arrData)// 传入搭配有数据库collection名称和相应数据的数组
+
+  // 将操作数据库的方法导入路由页面
+  routers(app, gfs, upload, { insertdbData, finddbData, findOneAndUpdate, findByIdAndUpdate, remove, findSameCollArrData });
+
+
+  // catch 404 and forward to error handler
+  app.use(function (req, res, next) { // 捕获404错误，并转发到错误处理器。
+    next(createError(404));
+  });
+
+  // error handler
+  app.use(function (err, req, res, next) { // 开发环境下的错误处理器，将错误信息渲染error模版并显示到浏览器中,请在其他 app.use() 和路由调用之后，最后定义错误处理中间件
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    console.log(err, 'err')
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    // res.render('error');  如果您不使用视图引擎，则res.render内容将引发错误。
+    res.send({
+      message: err.message,
+      error: err
+    })
+  });
 })
 
-/* 连接数据库后并设置好model */
-// let { initSchema } = require('./setdbModel') // 引入配置好的model
-let { insertdbData, finddbData, findOneAndUpdate, findByIdAndUpdate, remove, findSameCollArrData } = require('./routes/dbFuc') // 引入配置好的model
-// insertdbData(arrData)// 传入搭配有数据库collection名称和相应数据的数组
-
-// 将操作数据库的方法导入路由页面
-routers(app, gfs, upload, { insertdbData, finddbData, findOneAndUpdate, findByIdAndUpdate, remove, findSameCollArrData });
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) { // 捕获404错误，并转发到错误处理器。
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) { // 开发环境下的错误处理器，将错误信息渲染error模版并显示到浏览器中,请在其他 app.use() 和路由调用之后，最后定义错误处理中间件
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  // res.render('error');  如果您不使用视图引擎，则res.render内容将引发错误。
-  res.send({ 
-    message: err.message,
-    error: err
-  })
-});
 
 module.exports = app;

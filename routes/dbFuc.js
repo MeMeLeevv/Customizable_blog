@@ -15,7 +15,7 @@ const finddbData = async (Data) => { // 传入搭配有数据库collection名称
       let name = Data.collectName /* 取setModel的实例名 */
       let condition = Data.condition
       //模糊查询
-      console.log(condition, 'condition!!!!!!!!!!!!')
+      // console.log(condition, 'condition!!!!!!!!!!!!')
       return await res[name].find(condition, function (err, res) {
         if (err) {
           return 'you get a null res!please try again' + err
@@ -39,7 +39,7 @@ const findSameCollArrData = async (Data) => { // 寻找相同表下符合条件�
         condition.push({_id: _idArr[i]})
       }
       //模糊查询
-      console.log(condition, 'condition!!!!!!!!!!!!')
+      // console.log(condition, 'condition!!!!!!!!!!!!')
       return await res[name].find({
         $or: condition
       }, function (err, res) {
@@ -61,8 +61,10 @@ const findOneAndUpdate = async (Data) => { // 传入搭配有数据库collection
       let name = Data.collectName /* 取setModel的实例名 */
       let condition = Data.condition // 查询条件
       let updata = Data.updata // 只需要列出要更新的数据
-      let options = {upsert: true, new: true, setDefaultsOnInsert: true}; 
+      let options = {upsert: true, new: true, setDefaultsOnInsert: true, useFindAndModify: false}; 
       //模糊查询
+      console.log(res[name], 'res[name]!!!!!!!!!!!')
+      console.log(res[name].findOneAndUpdate, 'res[name].findOneAndUpdate!!!!!!!!!!!')
       return await res[name].findOneAndUpdate(condition, updata, options) // 返回被更新的整条数据
     // await process.exit(0)
   })
@@ -111,6 +113,7 @@ const insertdbData = async (arrData) => { // 传入搭配有数据库collection�
       let name = arrData[i].collectName /* 取setModel的实例名 */
       let data = arrData[i].data //Array
       console.log(data,'data!!!!!!!!!!!!!!')
+      console.log(res[name].insertMany, 'res[name]!!!!!')
       return await res[name].insertMany(data, { ordered: false }).then(res => { // { ordered: false } 遇到重复项不报错，继续插入下一项
         console.log(res, 'you get the res!!!!!!!!!!!!!!!!!!!!!!')
         if (res.length > 0) {/* 返回对象数组 */

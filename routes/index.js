@@ -56,6 +56,7 @@ req.body： 处理 post 请求，获取 post 请求体
 req.param()： 处理 get 和 post 请求，但查找优先级由高到低为 req.params→req.body→req.query
 */
 var shortid = require('shortid');
+var _ = require('lodash');
 
 module.exports = function (app, gfs, upload, dbFun) {
   // @route GET /
@@ -69,16 +70,17 @@ module.exports = function (app, gfs, upload, dbFun) {
         data: {
           userId: sess.userId,// 通过验证，取出session保存的数据返回给前端
           blogId: sess.blogId,// 通过验证，取出session保存的数据返回给前端
-          msg: '验证登录态成功！'
-        }
+        },
+        msg: '验证登录态成功！'
       })
     } else { // 以req.session.auth为标记，标记是否已经通过登录验证
       res.status(200).send({
         code: 201,
         data: {
           data: '',// 通过验证，取出session保存的数据返回给前端
-          msg: '验证登录态失败，请登录或注册！'
-        }
+        },
+        msg: '验证登录态失败，请登录或注册！'
+
       })
     }
   })
@@ -124,8 +126,9 @@ module.exports = function (app, gfs, upload, dbFun) {
             data: {
               userId: userId,
               blogId: blogId,
-              msg: '注册成功！'
-            }
+            },
+            msg: '注册成功！'
+
           })
           // console.log(ress, 'register get data!!!!!!!!!!!!!!')
         })
@@ -133,8 +136,9 @@ module.exports = function (app, gfs, upload, dbFun) {
         res.status(200).send({
           code: 2,
           data: {
-            msg: '重复注册!请返回登陆！'
-          }
+          },
+          msg: '重复注册!请返回登陆！'
+
         })
         // console.log(ress, '重复注册!请返回登陆！')
       }
@@ -156,8 +160,9 @@ module.exports = function (app, gfs, upload, dbFun) {
         return res.status(200).send({
           code: 0,
           data: {
-            msg: '账号不存在，请注册！'
-          }
+          },
+          msg: '账号不存在，请注册！'
+
         })
       }
       if (ress[0].password === body.password) {
@@ -166,39 +171,34 @@ module.exports = function (app, gfs, upload, dbFun) {
             return res.status(200).send({
               code: 2,
               data: {
-                msg: '登陆失败！请重试！'
-              }
+              },
+              msg: '登陆失败！请重试！'
+
             })
           }
           req.session.userId = ress[0].userId;
           req.session.blogId = ress[0].blogId;
           req.session.auth = true // 登录成功设置标记为true
-          let returnData = {
-            account: ress[0].account,
-            avatar: ress[0].avatar,
-            name: ress[0].name,
-            desc: ress[0].desc,
-            blogId: ress[0].blogId,
-            userId: ress[0].userId,
-            starIdArr: ress[0].starIdArr,
-            msg: '登陆成功！'
-          }
           res.status(200).send({
             code: 200,
-            data: returnData
+            data: ress[0],
+            msg: '登陆成功！'
           })
         });
       } else {
         res.status(200).send({
           code: 1,
           data: {
-            msg: '账号或者密码错误！请重试！'
-          }
+          },
+          msg: '账号或者密码错误！请重试！'
+
         })
       }
     })
   })
-// 获取登陆者信息
+
+
+  // 获取登陆者信息
   app.get('/getUserInfo', (req, res) => { // 在这里的请求的session每次都不一样
     //首先先查找是否有此账户，有则直接登陆
     //没有则跳转到注册页面
@@ -213,21 +213,16 @@ module.exports = function (app, gfs, upload, dbFun) {
         return res.status(200).send({
           code: 0,
           data: {
-            msg: '用户不存在，请注册！'
-          }
+          },
+          msg: '用户不存在，请注册！'
+
         })
       } else {
-        let returnData = {
-          account: ress[0].account,
-          avatar: ress[0].avatar,
-          name: ress[0].name,
-          desc: ress[0].desc,
-          starIdArr: ress[0].starIdArr,
-          msg: '获取用户数据成功!'
-        }
         res.status(200).send({
           code: 200,
-          data: returnData
+          data: ress[0],
+          msg: '获取用户数据成功!'
+
         })
       }
     }).catch(err => {
@@ -235,12 +230,12 @@ module.exports = function (app, gfs, upload, dbFun) {
         code: 0,
         data: {
           data: err,
-          msg: '查询数据失败！'
-        }
+        },
+        msg: '查询数据失败！'
+
       })
     })
   })
-
 
 
   /* GET logout page. */
@@ -251,8 +246,9 @@ module.exports = function (app, gfs, upload, dbFun) {
     res.status(200).send({
       code: 200,
       data: {
-        msg: '登出成功！'
-      }
+      },
+      msg: '登出成功！'
+
     })
   });
 
@@ -260,13 +256,241 @@ module.exports = function (app, gfs, upload, dbFun) {
   // @desc  Uploads file to DB
   app.post('/uploadFile', upload.single('file'), (req, res) => { // 每次只能上传一个文件
     //res.send({ file: req.file }); // 对应着name = file 来取得具体file的信息
-    // console.log(res.req.file, 'res.req.file')
     res.status(200).send({
       filename: res.req.file.filename,
       id: res.req.file.id
     })
     //res.redirect('/');//继续回到根目录
   });
+
+  
+  // 获取文章信息
+  app.get('/article/list', (req, res) => { // 在这里的请求的session每次都不一样
+    //首先先查找是否有此账户，有则直接登陆
+    //没有则跳转到注册页面
+    let findData = {
+      collectName: 'articleDatas',
+      condition: { blogId: req.query.blogId } // 按userId即id去查询
+    }
+    dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+      // 存在此用户，检测密码
+      if (ress.length === 0) {
+        return res.status(200).send({
+          code: 200,
+          data: {
+          },
+          msg: '暂无文章数据'
+
+        })
+      } else {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '获取文章数据成功!'
+
+        })
+      }
+    }).catch(err => {
+      res.status(200).send({
+        code: 0,
+        data: {
+          data: err,
+        },
+        msg: '查询数据失败！'
+
+      })
+    })
+  })
+
+
+  // 插入新的文章数据
+  app.post('/article/create', (req, res) => {
+
+    let insertArticleData = {
+      collectName: 'articleDatas',
+      data: [
+        {
+          blogId: req.body.blogId,
+          articleId: shortid.generate(),
+          Summary: '',
+          pubilcTime: '', // 最近更新时间
+          tapsArr: [],
+          postTypeValue: '1',
+          ReprintURL: '', // 转载或者翻译的url
+          commentValue: '1',
+          categoryValue: [],
+          statusValue: '1', // 是发布还是为草稿
+          content: ''
+        }
+      ]
+    }
+
+    dbFun.insertdbData([insertArticleData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+      if (Array.isArray(ress)) {
+        res.status(200).send({
+          code: 200,
+          data: ress[0],
+          msg: '创建文章成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '创建文章失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
+
+  // 更新文章数据
+  app.post('/article/update', (req, res) => {
+
+    let updateArticleData = {
+      collectName: 'articleDatas',
+      condition: { articleId: req.body.articleId },
+      updata: req.body
+    }
+
+
+    dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+    console.log(ress, 'ress!!!!!!!!!!!!')
+      
+      if (ress) {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '更新文章成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '更新文章失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
+
+    // 插入新的父级数据
+    app.post('/comment/createPa', (req, res) => {
+      req.body.commentId = shortid.generate()
+      let insertCommentData = {
+        collectName: 'paCommentDatas',
+        data: [
+          req.body
+        ]
+      }
+      console.log(req.body, 'req.body!!!!!!!!')
+  
+      dbFun.insertdbData([insertCommentData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+        if (Array.isArray(ress)) {
+          res.status(200).send({
+            code: 200,
+            data: ress[0],
+            msg: '发表评论成功'
+          })
+        } else {
+          res.status(200).send({
+            code: 100,
+            data: ress,
+            msg: '发表评论失败，请重试！'
+          })
+        }
+        // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+      })
+    })
+
+    // 插入新的子级数据
+    app.post('/comment/createSon', (req, res) => {
+      req.body.commentId = shortid.generate()
+      let insertCommentData = {
+        collectName: 'sonCommentDatas',
+        data: [
+          req.body
+        ]
+      }
+      console.log(req.body, 'req.body!!!!!!!!')
+  
+      dbFun.insertdbData([insertCommentData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+        if (Array.isArray(ress)) {
+          res.status(200).send({
+            code: 200,
+            data: ress[0],
+            msg: '发表评论成功'
+          })
+        } else {
+          res.status(200).send({
+            code: 100,
+            data: ress,
+            msg: '发表评论失败，请重试！'
+          })
+        }
+        // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+      })
+    })
+
+    
+  // 更新文章数据
+  app.post('/comment/updatePa', (req, res) => {
+
+    let updateArticleData = {
+      collectName: 'paCommentDatas',
+      condition: { commentId: req.body.commentId },
+      updata: req.body
+    }
+
+
+    dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+    console.log(ress, 'ress!!!!!!!!!!!!')
+      
+      if (ress) {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '操作成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '操作失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
+
+  // 更新文章数据
+  app.post('/comment/updateSon', (req, res) => {
+
+    let updateArticleData = {
+      collectName: 'sonCommentDatas',
+      condition: { commentId: req.body.commentId },
+      updata: req.body
+    }
+
+
+    dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+    console.log(ress, 'ress!!!!!!!!!!!!')
+      
+      if (ress) {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '操作成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '操作失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
 
   // @route GET /files
   // @desc  Display all files in JSON
@@ -310,7 +534,6 @@ module.exports = function (app, gfs, upload, dbFun) {
   // @route GET /image/:filename
   // @desc Display Image
   app.get('/images/:filename', (req, res) => {
-    // console.log(gfs, 'gfs!!!!!!!!!!!!!!!!')
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
@@ -318,7 +541,6 @@ module.exports = function (app, gfs, upload, dbFun) {
           err: 'No file exists'
         });
       }
-
       // Check if image
       if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
         // Read output to browser
