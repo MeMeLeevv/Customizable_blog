@@ -10,6 +10,6 @@
   },
   "local": {
     "$--avatar-background-color": "#313131",
-    "$--input-placeholder-color": "#E7C4BE"
+    "$--input-placeholder-color": "#a1a1a1"
   }
 }

@@ -1,34 +1,47 @@
 <template>
   <div class="detailBlogs">
-    <div v-if="editSetting" class="editSetting" @click.stop="editSetting = false">
-      <div class="editWrap" @click.stop="editSetting = true">
-        <div class="title">编辑帖子</div>
-        <div class="editContent">
-          <div class="coverWrap">
-            <div class="coverTitle">封面图片</div>
-            <div class="coverUpload"><uploadImg></uploadImg></div>
-          </div>
-          <div class="field_rhs"></div>
-        </div>
+    <navbar></navbar>
+    <settingDialog
+      v-bind:editSetting.sync="editSetting"
+      v-bind:articleMsg.sync="articleMsg"
+      @apply="apply"
+    ></settingDialog>
+    <div v-if="articleMsg.publicTime">
+      <div class="date" v-if="articleMsg.publicTime" title="发布时间">
+        <svg-icon class="icon" icon-class="time" />
+        <span> : {{articleMsg.publicTime}}</span>
+      </div>
+      <div class="date" title="标签" v-if="articleMsg.tapsArr.length !== 0">
+        <svg-icon class="icon" icon-class="tap" /> :
+        <span class="tapItem" v-for="(item,index) in articleMsg.tapsArr" :key="index">{{item}}</span>
       </div>
     </div>
-    <div class="date">May 30</div>
-    <titleBlog :needTitle="true" :content="content"></titleBlog>
+    <titleBlog
+      :needTitle="true"
+      :needContent="needContent"
+      v-bind:content.sync="articleMsg.content"
+    ></titleBlog>
     <div class="public">
-      <button @click="editSetting = true" title="发布">
+      <button @click.stop="editSetting = true" title="发布">
         <svg-icon class="icon" icon-class="publish" />
       </button>
     </div>
-    <div class="comments">
-      <h1>Comments(0)</h1>
+    <div class="commentsArea">
+      <h1>commentsArea({{comNums}})</h1>
       <div class="uiArea">
         <div class="input">
-          <textarea v-model="comment" name id></textarea>
+          <textarea v-model="faComment.content" name id></textarea>
         </div>
         <div class="submit">
-          <span class="btn">发布评论</span>
+          <span @click.stop="submitPaCom" class="btn">发布评论</span>
         </div>
       </div>
+      <comments
+        v-if="commentsPaPaMsg.length"
+        :needSubmit="needSubmit"
+        :insertPaData="insertPaData"
+        v-bind:commentsPaPaMsg.sync="commentsPaPaMsg"
+      ></comments>
     </div>
     <div class="pagination">
       <span class="pre">
@@ -43,24 +56,194 @@
   </div>
 </template>
 <script>
+import navbar from '@/components/navbar'
 import titleBlog from '@/components/addComponents/editor/index.vue'
-import uploadImg from '@/components/uploadImg/index.vue'
+import settingDialog from '@/views/detailBlogs/settingDialog.vue'
+import comments from '@/views/detailBlogs/comments.vue'
+import { parseTime, deepClone } from '@/utils/index.js'
+import { updateArticle } from '@/api/article'
+import { createPacomment } from '@/api/comment'
 export default {
   name: 'detailBlogs',
   data () {
     return {
       editSetting: false,
-      content: '<h1>1234</h1><p>ahhahah</p>',
-      comment: '666666666666666666666'
+      tapString: '',
+      needContent: false, // 是否需要去editor那里去html数据
+      articleMsg: {
+        blogId: this.$store.state.user.blogId,
+        articleId: this.$route.params.id,
+        Summary: '', // 摘要
+        publicTime: '', // 最近更新时间
+        tapsArr: [],
+        postTypeValue: '',
+        ReprintURL: '',
+        commentValue: '',
+        categoryValue: [],
+        statusValue: '',
+        cover: '',
+        content: ''
+      },
+      comNums: 0,
+      needSubmit: false, // 当有新评论（papaCom)需要插入到评论区时,提示子元素有数据加入了，需要将新数据初始化加入对应data里（liked 、reported....
+      // 分两个表，一个父级的评论，不会有回复；一个是子评论，会有父级id和孙子id
+      /* commentsPaPaMsg: [
+        {
+          id: '1',
+          articleID: '1345',
+          content:
+            '可惜没有旧时的弹幕了“从春秋五霸变成了战国七雄”这条弹幕我现在还记得',
+          time: '2017-11-30 13:52',
+          userId: '667',
+          likes: ['12', '23423', '45'],
+          reports: ['9', '5', '4'],
+          reported: false,
+          hasSon: false, // 如果为true就去拉请求
+          liked: false, // 判断likes数组是否有用户id，有则true，否则false
+          name: '寻之言之_',
+          avatar:
+            'https://tse1-mm.cn.bing.net/th/id/OIP.aAjWK6W0KU48ytqCFNykUQAAAA?w=211&h=205&c=7&o=5&dpr=1.25&pid=1.7',
+          commentsSonMsg: [
+            {
+              id: '12',
+              PaPaCommentId: '1',
+              userId: '7777',
+              time: '2018-06-22 00:39',
+              content: '鲁迅：我没说过考生：我管你说没说过',
+              likes: ['12', '23423', '45', '12', '23423', '45'],
+              reports: ['9', '5', '4'],
+              reported: false,
+              liked: false, // 判断likes数组是否有用户id，有则true，否则false
+              name: '我爱impala67',
+              avatar:
+                'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ4h_4Ir0MoytTi1AgWDYqnRLJtyGnHApQAZBTPKOG8f-2JL2Gg&usqp=CAU',
+              beReply: {
+                commentId: '', // 继续在sonMsg里找 回复只取昵称和内容即可
+                userId: '123',
+                name: 'free记忆',
+                content: '鲁迅曾经说过，一切皆有可能'
+              }
+            },
+            {
+              id: '13',
+              PaPaCommentId: '1',
+              userId: '999', // 取用户的name和avatar
+              time: '2018-06-22 00:39',
+              content: '鲁迅曾经说过，一切皆有可能',
+              likes: ['12', '12', '23423', '45'],
+              reports: ['9', '5', '4'],
+              reported: false,
+              liked: false, // 判断likes数组是否有用户id，有则true，否则false
+              name: 'free记忆',
+              avatar:
+                'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQx4e_9fEO8XzERT-tP-r56AAbWytrEx-b3ozyBv2uNGLj9vCvp&usqp=CAU',
+              beReply: {
+                commentId: '', // 取用户的comment
+                userId: '' // 取用户的name
+              }
+            }
+          ]
+        }
+      ], */
+      commentsPaPaMsg: [],
+      insertPaData: {},
+      faComment: {
+        articleID: '1345',
+        commentId: '',
+        content: '',
+        time: '',
+        userId: '667',
+        likes: [],
+        reports: [],
+        hasSon: false, // 如果为true就去拉请求
+        name: '',
+        avatar: '',
+        commentsSonMsg: []
+      }
     }
   },
-  created () {},
+  created () {
+    // // console.log(titleBlog.methods.getContent(), 'titleBlog')
+    /* if (!this.$route.params.id) { // 如果id为空，则表示是进入一个空白编辑页面,新增文章数据插入数据库
+
+    } else { // 根据文章id去后台取对应博文数据
+
+    } */
+  },
+  watch: {
+    commentsPaPaMsg: {
+      handler (newV) {
+        this.comNums = 0
+        for (let i = 0; i < newV.length; i++) {
+          this.comNums++
+          this.comNums += newV[i].commentsSonMsg.length
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   computed: {},
   mounted () {},
-  methods: {},
+  methods: {
+    submitPaCom () {
+      // 根据
+      this.faComment.articleID = this.$route.params.id
+      this.faComment.time = parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}')
+      this.faComment.userId = this.$store.state.user.userId
+      this.faComment.name = this.$store.state.user.name
+      this.faComment.avatar = this.$store.state.user.avatar
+      this.faComment.hasSon = false
+      createPacomment(this.faComment).then(res => {
+        this.faComment.commentId = res.data.commentId
+        // console.log(res, 'commentRes')
+        this.commentsPaPaMsg.unshift(this.faComment)
+        this.insertPaData = deepClone(this.faComment) // 最好对象的复制都用深克隆
+      })
+    },
+    apply () {
+      this.needContent = true
+      setTimeout(() => { // 需要延迟给editor时间去取content
+        // console.log(this.articleMsg.content, 'this.articleMsg.content')
+        if (this.articleMsg.content.trim() === '<h1 class="detailBlogs_title" tabindex="0"></h1><p></p>') {
+          this.needContent = false
+          this.$message.error('文章内容为空，请填写其内容！')
+          return
+        }
+        // 发布或者草稿或者删除要做提醒，新增的类别要和博客的类别数组合并一下，新增的则加进去
+        let text = ''
+        if (this.articleMsg.statusValue === '1') {
+          this.articleMsg.publicTime = parseTime(
+            new Date(),
+            '{y}/{m}/{d} {h}:{i}:{s}'
+          )
+          text = '正在加油发布中，请稍后~'
+        } else text = '正在加油保存为草稿中，请稍后~'
+        // eslint-disable-next-line no-unused-vars
+        const loading = this.$loading({
+          lock: true,
+          text: text,
+          background: 'rgba(255, 255, 255, 0.5)',
+          customClass: 'waiting'
+        })
+        updateArticle(this.articleMsg).then(res => {
+          loading.close()
+          this.$message({
+            message: '操作成功！',
+            type: 'success'
+          })
+          this.needContent = false
+          this.editSetting = false
+          // console.log(res, 'res')
+        })
+      }, 100)
+    }
+  },
   components: {
+    navbar,
     titleBlog,
-    uploadImg
+    settingDialog,
+    comments
   }
 }
 </script>
@@ -69,48 +252,8 @@ export default {
   width: 50%;
   margin: 0 auto;
   margin-top: 50px;
-  .editSetting {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba($color: #000000, $alpha: .5);
-    z-index: 200;
-    .editWrap {
-      width: 750px;
-      background: #f6f6f6;
-      box-shadow: 0 4px 33px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
-      border-radius: 4px;
-      max-height: 100%;
-      overflow: hidden;
-      font-size: 12px;
-      color: #3e3e3e;
-      text-align: center;
-      .title {
-        padding: 11px 0;
-        border-bottom: 1px solid #e4e4e4;
-      }
-      .editContent {
-        height: 80vh;
-        overflow-y: auto;
-        .coverWrap {
-          display: inline-block;
-          .coverUpload {
-            margin-top: 5px;
-            width: 150px;
-            height: 150px;
-            overflow: hidden;
-          }
-        }
-        .field_rhs {
-          display: inline-block;
-        }
-      }
-    }
+  .navbar {
+    top: 55px;
   }
   .public {
     position: fixed;
@@ -119,10 +262,22 @@ export default {
     font-size: 24px;
   }
   .date {
+    margin-bottom: 5px;
     font-size: 14px;
     letter-spacing: 0.01rem;
     font-weight: 400;
-    margin-bottom: 5px;
+    line-height: 22px;
+    .icon {
+      font-size: 14px;
+    }
+    .tapItem {
+      margin-left: 5px;
+      padding: 2px 5px;
+      background: #98c3de;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
   }
   .uiArea {
     margin-bottom: 15px;

@@ -27,7 +27,7 @@ export const constantRoutes = [ // 省略了:id,记得补上
         }
       },
       {
-        path: 'Blogs',
+        path: 'Blogs/:id',
         name: 'Blogs',
         components: {
           main: () => import('@/views/detailBlogs/index'),

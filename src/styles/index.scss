@@ -80,6 +80,40 @@ input, textarea {
   background-color: $page_bg;
   font-size: 14px;
 }
+
+.noneBorderW .el-input__inner {
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+}
 .lightColor.el-divider {
   background-color: $mainColor;
+}
+
+.cover-uploader .el-upload--picture-card,.cover-uploader .el-upload-list__item{
+    width: 250px;
+    height: 250px;
+    display: inline-block;
+    line-height: 250px;
+}
+.cover-uploader .el-upload-list__item-status-label {
+  line-height: 25px;
+}
+
+.el-scrollbar .el-select-dropdown__item {
+  font-size: 12px;
+}
+
+.waiting .el-loading-text {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+.demo-ruleForm .el-form-item__label {
+  font-size: 12px;
+}
+.demo-ruleForm .el-form-item {
+  margin-bottom: 0;
 }

@@ -2,7 +2,7 @@
   <div class="blogList">
     <div class="control-button-wrapper">
       <div class="iconBar">
-        <button class="editbtn">编辑文章</button>
+        <button class="editbtn" @click.stop="goBlankEditBlog">编辑文章</button>
       </div>
       <div class="iconBar">
         <button class="btn" @click="$emit('update:showEditDialog', true)">
@@ -181,6 +181,8 @@
   </div>
 </template>
 <script>
+import { fetchList, createArticle } from '@/api/article'
+
 export default {
   name: 'blogList',
   props: {
@@ -366,6 +368,9 @@ export default {
     }
   },
   created () {
+    fetchList({ blogId: this.$store.state.user.blogId }).then(res => {
+      // console.log(res, 'res')
+    })
     /* 初始化时根据布局规定cover最大高度以及编辑dialog需要显示的条例 */
     const layout = this.blogListSetting.layout
     if (layout === '1') {
@@ -408,6 +413,11 @@ export default {
     this.$nextTick(function (params) {})
   },
   methods: {
+    goBlankEditBlog () {
+      createArticle({ blogId: this.$store.state.user.blogId }).then(res => {
+        this.$router.push(`/Blogs/${res.data.articleId}`)
+      }) // 如果为空推出后要销毁
+    },
     toDetailPage () {
       this.$router.push('/Blogs')
     },
@@ -451,7 +461,7 @@ export default {
           this.marginBottom += 50
         }
         this.articleMaxH[artMaxIndex] += Number(this.articleH[index])
-        // console.log(artMaxIndex, 'artMaxIndex')
+        // // console.log(artMaxIndex, 'artMaxIndex')
         // 当加载完毕时计算出列数中的最大值 容器高度 > (容器padding上下:)90 +( 列数最高:)this.articleMaxH + (每行的marginBottom)this.marginBottom + (可能的误差) + 6
         this.$refs.MasonryWrapper.style.height = `${Math.max(
             ...this.articleMaxH
@@ -459,10 +469,10 @@ export default {
             this.marginBottom +
             90 * 2 +
             6}px`
-        // console.log(this.articleH, 'this.articleH')
-        // console.log(this.articleMaxH, 'MaxH')
-        // console.log(textH, 'textH') // 当articleH的元素数量等于article的数量时表示全部加载完毕，开始根据columns来分列取得每列最大的数作为container的高度
-        // console.log(this.articleH, 'hh') // 当articleH的元素数量等于article的数量时表示全部加载完毕，开始根据columns来分列取得每列最大的数作为container的高度
+        // // console.log(this.articleH, 'this.articleH')
+        // // console.log(this.articleMaxH, 'MaxH')
+        // // console.log(textH, 'textH') // 当articleH的元素数量等于article的数量时表示全部加载完毕，开始根据columns来分列取得每列最大的数作为container的高度
+        // // console.log(this.articleH, 'hh') // 当articleH的元素数量等于article的数量时表示全部加载完毕，开始根据columns来分列取得每列最大的数作为container的高度
       }
     }
   },

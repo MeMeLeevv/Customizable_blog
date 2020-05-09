@@ -168,6 +168,7 @@ import Title from './Title'
 export default {
   props: {
     content: String,
+    needContent: Boolean,
     needTitle: {
       type: Boolean,
       default: false
@@ -253,18 +254,27 @@ export default {
     }, 2000)
   },
   watch: {
+    needContent: {
+      handler (newV) {
+        if (newV) {
+          // console.log(this.getContent(), ' this.getContent()')
+          this.$emit('update:content', this.getContent())
+        }
+      }
+    }
   },
   methods: {
     focus (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
-      console.log(e, 'focus')
+      // console.log(e, 'focus')
       this.hideBar = true
     },
     blur (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
       // this.hideBar = false
-      console.log(e, 'blur')
+      // console.log(e, 'blur')
     },
     getContent () {
-      console.log(this.editor.getHTML(), 'content')
+      return this.editor.getHTML()
+      // // console.log(this.editor.getHTML(), 'content')
     },
     showLinkMenu (attrs) {
       this.linkUrl = attrs.href

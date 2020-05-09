@@ -47,10 +47,10 @@ service.interceptors.response.use(
 
     // if the custom code is not 20000, it is judged as an error.
     if (res.code === 201) { // 验证登录态失败，需要重新登录
-      return Promise.reject(new Error(res.data.msg || 'Error'))
+      return Promise.reject(new Error(res.msg || 'Error 201'))
     } else if (res.code !== 200 && res.code !== 304) {
       Message({
-        message: res.data.msg || 'Error',
+        message: res.msg || 'Error',
         type: 'error',
         duration: 3 * 1000
       })
@@ -69,10 +69,10 @@ service.interceptors.response.use(
           }
         })
       }
-      return Promise.reject(new Error(res.message || 'Error'))
+      return Promise.reject(new Error(res.msg || 'Error'))
     } else {
       Message({
-        message: res.data.msg,
+        message: res.msg,
         type: 'success',
         duration: 5 * 1000
       })
