@@ -32,6 +32,14 @@ export function getInfo (userId) {
   })
 }
 
+export function getInfoByBlogId (blogId) {
+  return request({
+    url: '/getInfoByBlogId',
+    method: 'get',
+    params: { blogId }
+  })
+}
+
 export function logout () {
   return request({
     url: '/logout',

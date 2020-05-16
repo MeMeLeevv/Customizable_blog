@@ -5,7 +5,7 @@
       <div class="bg">
         <img
           style="height: 580px;"
-          src="https://static1.squarespace.com/static/5e85fd5635ceb4455319720e/t/5e8bf6287a32914c2768573b/1562688063139/20140301_Trade-151_0124-copy.jpg?format=2500w"
+          src="https://www.squarespace.com/assets/template-picker-2016/images/banner_splash.png"
           alt
         />
       </div>

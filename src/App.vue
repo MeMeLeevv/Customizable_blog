@@ -1,7 +1,13 @@
 <template>
   <div id="app" :class="usingFontName">
-    <live2d v-if="closeModel && showLive && !hideModel" :editState.sync="editState" @updateModel="updateModel" :showModel="showModel" @changeLive2d="showlive2d"></live2d>
-    <router-view />
+    <live2d
+      v-if="closeModel && showLive && !hideModel"
+      :editState.sync="editState"
+      @updateModel="updateModel"
+      :showModel="showModel"
+      @changeLive2d="showlive2d"
+    ></live2d>
+    <router-view v-if="isRouterAlive" />
   </div>
 </template>
 
@@ -9,11 +15,18 @@
 import { asyncRoutes } from '@/router'
 import { Message } from 'element-ui'
 import live2d from '@/components/live2d/live2d'
-
+import { getInfoByBlogId } from '@/api/user'
+// import { getBlogSetting } from '@/api/blog'
 export default {
   name: 'App',
+  provide () {
+    return {
+      reload: this.reload
+    }
+  },
   data () {
     return {
+      isRouterAlive: true,
       usingFontName: this.$store.state.app.fontFamily,
       hideModel: false,
       closeModel: this.$store.state.live2d.close,
@@ -24,31 +37,24 @@ export default {
     }
   },
   created () {
+    // console.log(this.$route.params.blogId, 'blog')
+    if (!this.$route.params.blogId) {
+      // 刚开始加载 如果路由没有blogId，则默认赋值
+      this.$router.push('/tCqtL_yo9')
+    }
     this.$store.state.live2d.models.forEach(item => {
       this.models.push(item.value)
     })
     // 首次加载查询是否session过期，否则在store里储存全局用户信息
-    this.$store.dispatch('user/firstShow').then(() => {
-    }).catch(err => {
-      console.log(new Error(err))
-    })
-    /* setTimeout(() => { // 定时器,created执行一秒后触发
-      window.L2Dwidget.init({
-        pluginRootPath: 'live2dw/', // 指向你的目录
-        pluginJsPath: 'lib/', // 指向你的目录··
-        pluginModelPath: 'live2d-widget-model-nico/assets/', // 中间这个koharu就是你的老婆,想换个老婆,换这个就可以了
-        tagMode: false,
-        debug: false,
-        model: { jsonPath: '/live2dw/live2d-widget-model-nico/assets/nico.model.json' }, // 中间这个koharu就是你的老婆,想换个老婆,换这个就可以了
-        display: { position: 'right', width: 150, height: 300 }, // 调整大小,和位置
-        mobile: { show: true }, // 要不要盯着你的鼠标看
-        log: false
+    this.$store
+      .dispatch('user/firstShow')
+      .then(() => {})
+      .catch(err => {
+        console.log(new Error(err))
       })
-    }, 300) */
   },
   mounted () {
-    this.$nextTick(function () {
-    })
+    this.$nextTick(function () {})
   },
   watch: {
     '$store.state.app.fontFamily' (newV, oldV) {
@@ -56,24 +62,46 @@ export default {
         this.usingFontName = newV
       }
     },
-    '$route' (to, from) { // 记录路由的来源和去路,及时修改路由index.js对应路由下main的component
-      this.from = from.path
-      this.to = to.path
-      if (!this.$store.state.user.hasLogin && this.to.indexOf('config') !== -1) {
-        Message({
-          message: '抱歉，您暂无权限访问，请登录！',
-          type: 'error',
-          duration: 5 * 1000
-        })
-        this.$router.push('/error/403')
-      }
-      if (this.to === '/config/Design/Cartoons') {
+    $route: { // 注意不要使用箭头函数，他没有自己的this和args
+      handler: function (to, from) { /* 设置页面也储存blogId吧！这样就可以统一了~~~~~~~~~~~~ */
+      // 记录路由的来源和去路,及时修改路由index.js对应路由下main的component
+        this.to = to.path
+        // const that = this
+        if (to.params.blogId) {
+        // 如果存在blogId ,则去获取
+          console.log(to.params.blogId, '如果存在blogId, 则去获取')
+          // getBlogSetting(to.params.blogId)
+          getInfoByBlogId(to.params.blogId).then(res => {
+          // that.$store.dispatch('blog/setUserInfo', res.data)
+          })
+        } else {
+        // 如果没有，先去看看有没有有没有登录，登录的话可能是在config状态，那么信息卡呈现已登录用户信息
+        /* if (this.$store.state.user.hasLogin) { // 直接在store中获取需要的用户数据
+          } */
+        }
+        if (this.to === '/') {
+          this.$router.push('/tCqtL_yo9')
+        }
+        if (
+          !this.$store.state.user.hasLogin &&
+        this.to.indexOf('config') !== -1
+        ) {
+          Message({
+            message: '抱歉，您暂无权限访问，请登录！',
+            type: 'error',
+            duration: 5 * 1000
+          })
+          this.$router.push('/error/403')
+        }
+        if (this.to === '/config/Design/Cartoons') {
         // 在设置页面虽然能调用此组件地updateModel，但并没有产生更新，于是设置页面也插入live2d组件（操作直接作用于它），此时这个页面的live2d组件要隐藏
-        this.hideModel = true
-      } else {
-        this.hideModel = false
+          this.hideModel = true
+        } else {
+          this.hideModel = false
         // console.log(this.$store.getters.model, 'this.$store.state.live2d.model')
-      }
+        }
+      },
+      immediate: true
     },
     '$store.state.live2d.model': function (newV) {
       this.showModel = newV
@@ -89,6 +117,12 @@ export default {
     }
   },
   methods: {
+    reload () {
+      this.isRouterAlive = false
+      this.$nextTick(function () {
+        this.isRouterAlive = true
+      })
+    },
     updateModel () {
       this.showLive = false
       setTimeout(() => {
@@ -98,7 +132,8 @@ export default {
     showlive2d () {
       this.showLive = false
       let index = this.models.indexOf(this.showModel)
-      if (index === this.models.length - 1) { // 切换时index + 1
+      if (index === this.models.length - 1) {
+        // 切换时index + 1
         index = 0
       }
       this.showModel = this.models[index + 1]

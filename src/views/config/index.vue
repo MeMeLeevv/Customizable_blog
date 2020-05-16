@@ -14,27 +14,27 @@ export default {
         {
           name: '博客',
           hover: false,
-          path: '/config/BlogsSettings'
+          path: `/${this.$store.state.user.blogId}/config/BlogsSettings`
         }, {
           name: '设计',
           hover: false,
-          path: '/config/Design'
+          path: `/${this.$store.state.user.blogId}/config/Design`
         }, {
           name: '评论',
           hover: false,
-          path: '/config/CommentsSettings'
+          path: `/${this.$store.state.user.blogId}/config/CommentsSettings`
         }, {
           name: '喜欢',
           hover: false,
-          path: '/config/Likes'
+          path: `/${this.$store.state.user.blogId}/config/Likes`
         }, {
           name: '设置',
           hover: false,
-          path: '/config/BlogsSettings'
+          path: `/${this.$store.state.user.blogId}/config/BlogsSettings`
         }, {
           name: '帮助',
           hover: false,
-          path: '/config/BlogsSettings'
+          path: `/${this.$store.state.user.blogId}/config/BlogsSettings`
         }
       ]
     }

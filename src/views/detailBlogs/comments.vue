@@ -65,11 +65,13 @@ import { createSoncomment, updatePacomment, updateSoncomment } from '@/api/comme
 import Vue from 'vue'
 import replyTextarea from './replyTextarea.vue'
 import { deepClone, parseTime } from '@/utils/index.js'
+import { createNotice } from '@/api/notice'
 export default {
   name: 'comments',
   props: {
     commentsPaPaMsg: Array,
-    insertPaData: Object
+    insertPaData: Object,
+    cover: String
   },
   data () {
     return {
@@ -82,7 +84,7 @@ export default {
       DataTransit: [], // 暂时储存insertPaData，然后传给trueShowData（不用这个变量会出现第一级的评论的report图标无法双向绑定，但是数据是有变化的
       trueShowData: [],
       submitComData: {
-        PaPaCommentId: this.commentsPaPaMsg.commentId,
+        PaPaCommentId: this.commentsPaPaMsg[0].commentId,
         userId: this.$store.state.user.userId,
         commentId: '',
         time: '',
@@ -99,31 +101,7 @@ export default {
     }
   },
   created () { // 初始化DataTransit liked/reported/userid下的name和avatar
-    this.DataTransit = deepClone(this.commentsPaPaMsg)
-    for (let i = 0; i < this.DataTransit.length; i++) {
-      if (this.DataTransit[i].likes.indexOf(this.userId) !== -1) {
-        this.DataTransit[i].liked = true
-      }
-      if (this.DataTransit[i].reports.indexOf(this.userId) !== -1) {
-        this.DataTransit[i].reported = true
-      }
-      for (let j = 0; j < this.DataTransit[i].commentsSonMsg.length; j++) {
-        if (
-          this.DataTransit[i].commentsSonMsg[j].likes.indexOf(
-            this.userId
-          ) !== -1
-        ) {
-          this.DataTransit[i].commentsSonMsg[j].liked = true
-        }
-        if (
-          this.DataTransit[i].commentsSonMsg[j].reports.indexOf(
-            this.userId
-          ) !== -1
-        ) {
-          this.DataTransit[i].commentsSonMsg[j].reported = true
-        }
-      }
-    }
+    this.initData()
   },
   watch: {
     'replyElem.$data.submitReply' (newV, oldV) {
@@ -134,6 +112,8 @@ export default {
     commentsPaPaMsg: { // 初始化时根据userid拉取name和avatar，但是watch的时候就不需要
       handler (newV) {
         this.$emit('update:commentsPaPaMsg', newV)
+        // console.log(newV, 'commentData')
+        this.initData()
       },
       deep: true
     },
@@ -158,6 +138,34 @@ export default {
   computed: {},
   mounted () {},
   methods: {
+    initData () {
+      this.DataTransit = deepClone(this.commentsPaPaMsg)
+      if (this.DataTransit.length === 0) return
+      for (let i = 0; i < this.DataTransit.length; i++) {
+        if (this.DataTransit[i].likes.indexOf(this.userId) !== -1) {
+          this.DataTransit[i].liked = true
+        }
+        if (this.DataTransit[i].reports.indexOf(this.userId) !== -1) {
+          this.DataTransit[i].reported = true
+        }
+        for (let j = 0; j < this.DataTransit[i].commentsSonMsg.length; j++) {
+          if (
+            this.DataTransit[i].commentsSonMsg[j].likes.indexOf(
+              this.userId
+            ) !== -1
+          ) {
+            this.DataTransit[i].commentsSonMsg[j].liked = true
+          }
+          if (
+            this.DataTransit[i].commentsSonMsg[j].reports.indexOf(
+              this.userId
+            ) !== -1
+          ) {
+            this.DataTransit[i].commentsSonMsg[j].reported = true
+          }
+        }
+      }
+    },
     submitComment (content) {
       this.submitComData.content = content
       this.submitComData.time = parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}')
@@ -318,9 +326,11 @@ export default {
       // console.log(this.DataTransit[index], 'this.DataTransit[index]')
     },
     like (index, sonIndex) {
+      let noticeContent, like
       if (sonIndex === undefined) {
         // 表示是父级被点赞了
         this.DataTransit[index].liked = !this.DataTransit[index].liked
+        like = this.DataTransit[index].liked
         if (this.DataTransit[index].liked) {
           this.DataTransit[index].likes.push(this.userId)
           this.commentsPaPaMsg[index].likes.push(this.userId)
@@ -339,12 +349,14 @@ export default {
             type: 'success'
           }) */
         }
+        noticeContent = this.DataTransit[index].content
         updatePacomment({ likes: this.commentsPaPaMsg[index].likes, commentId: this.commentsPaPaMsg[index].commentId }).then(res => {
           // console.log(res, 'res')
         })
       } else {
         this.DataTransit[index].commentsSonMsg[sonIndex].liked = !this
           .DataTransit[index].commentsSonMsg[sonIndex].liked
+        like = this.DataTransit[index].commentsSonMsg[sonIndex].liked
         if (this.DataTransit[index].commentsSonMsg[sonIndex].liked) {
           this.commentsPaPaMsg[index].commentsSonMsg[sonIndex].likes.push(
             this.userId
@@ -377,6 +389,23 @@ export default {
         }
         updateSoncomment({ likes: this.commentsPaPaMsg[index].commentsSonMsg[sonIndex].likes, commentId: this.commentsPaPaMsg[index].commentsSonMsg[sonIndex].commentId }).then(res => {
           // console.log(res, 'res')
+        })
+
+        noticeContent = this.DataTransit[index].commentsSonMsg[sonIndex].content
+      }
+      if (like) {
+        createNotice({
+          hasRead: false,
+          whoDidId: this.$store.state.user.userId,
+          whatReceiveId: this.$route.params.blogId,
+          time: parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}'),
+          content: noticeContent,
+          action: 3,
+          articleId: this.$route.params.articleId,
+          cover: this.cover,
+          new: true
+        }).then(notice => {
+
         })
       }
     }

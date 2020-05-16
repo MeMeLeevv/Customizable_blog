@@ -8,7 +8,11 @@
         @hideL0RPage="$store.dispatch('app/setLogin0Regis', false)"
       ></loginORegis>
     </transition>
-    <div v-if="!$store.state.user.hasLogin" class="blogger_wrap margin"  @mouseenter="showMinelog = true">
+    <div
+      v-if="!$store.state.user.hasLogin"
+      class="blogger_wrap margin"
+      @mouseenter="showMinelog = true"
+    >
       <button title="我的">
         <svg-icon class="svg_icon" icon-class="avatar" />
       </button>
@@ -27,11 +31,11 @@
     </div>
     <div v-else class="blogger_wrap margin" @mouseenter="showMineList = true">
       <div class="showMsg">
-        <img class="avatar" :src="$store.state.user.avatar" alt="">
+        <img class="avatar" :src="$store.state.user.avatar" alt />
       </div>
       <transition name="slide-fade">
         <ul v-show="showMineList" class="mineList" @mouseleave="showMineList = false">
-          <li>我的博客</li>
+          <li @click="myBlog">我的博客</li>
           <li>管理博客</li>
           <li>账号设置</li>
           <li @click="logout">退出</li>
@@ -42,6 +46,34 @@
       <button title="发布">
         <svg-icon class="svg_icon" icon-class="publish" />
       </button>
+      <el-badge :is-dot="hasNewMsg" class="item" style="padding-bottom: 5px; margin:0 10px 0 20px">
+        <button @click="showNotice = true" title="消息" class="msg">
+          <svg-icon class="svg_icon" style="font-size: 20px" icon-class="msg" />
+        </button>
+      </el-badge>
+      <div class="noticeWrap" v-if="showNotice">
+        <div class="header">通知</div>
+        <span class="cancel" @click.stop="cancelNotice">
+          <svg-icon class="svg_icon" icon-class="cancel" />
+        </span>
+        <div v-if="noticeArr.length !== 0">
+          <div class="item" v-for="(item, index) in noticeArr" :key="index">
+            <span class="dot" v-if="!item.hasRead"></span>
+            <span class="logo">
+              <svg-icon class="svg_icon" icon-class="garden" />
+            </span>
+            <span class="center">
+              <svg-icon class="svg_icon" icon-class="liked" />
+              有人点赞了您的评论：{{item.content}}
+              <span class="time">{{item.time}}</span>
+            </span>
+            <span class="cover">
+              <img :src="item.cover" alt />
+            </span>
+          </div>
+        </div>
+        <div v-else style="text-align:center;margin-bottom: 10px">暂无通知</div>
+      </div>
     </div>
     <div class="search_wrap margin">
       <button title="搜索">
@@ -53,16 +85,78 @@
 <script>
 import titlelog from '@/components/titlelog'
 import loginORegis from '@/components/loginORegis'
-
+import { updateNotice } from '@/api/notice'
 export default {
   name: 'navbar',
   data () {
     return {
+      showNotice: false,
       showMinelog: false,
-      showMineList: false
+      showMineList: false,
+      noticeArr: [],
+      trueNotice: [],
+      hasNewMsg: false
     }
   },
-  created () {},
+  watch: {
+    '$store.state.user.hasLogin' (newV) {
+      // eslint-disable-next-line no-undef
+      const socket = io('http://localhost:3000')
+      const that = this // socket里面有个自己的this
+      if (newV) { // 此处的this无法与数据双向绑定，也就是说无法及时跟新，所以暂时采用store全局保存
+        socket.emit(
+          'login',
+          { blogId: that.$store.state.user.blogId },
+          data => {}
+        )
+        socket.on('getNotice', function (data) {
+          /* fetchList(this.$route.params.blogId).then(res => {
+            this.noticeArr = res.data
+          }) */
+          if (data.code === 200) {
+            that.$store.dispatch('blog/setNoticeArr', data.msg.reverse())
+            if (data.msg.length !== 0) {
+              for (let i = 0; i < data.msg.length; i++) {
+                if (data.msg[i].new) {
+                  that.$store.dispatch('blog/setNewMsg', true)
+                  return
+                }
+              }
+            }
+            // console.log(that.noticeArr)
+          }
+        })
+
+        /* socket.on('getNotice', (data) => {
+          console.log(data)
+          socket.emit('my other event', { my: 'data' })
+        }) */
+      } else {
+        socket.emit('logout')
+      }
+    },
+    '$store.state.blog.noticeArr': {
+      handler (newV) {
+        this.noticeArr = newV
+      },
+      immediate: true,
+      deep: true
+    },
+    '$store.state.blog.hasNewMsg': {
+      handler (newV) {
+        this.hasNewMsg = newV
+      },
+      immediate: true
+    }
+  },
+  created () {
+    /* if (this.$route.params.articleId) {
+      console.log(this.$route.params.articleId)
+      setInterval(() => {
+        console.log(this.noticeArr)
+      }, 2000)
+    } */
+  },
   computed: {
     showLogin0Regis () {
       return this.$store.state.app.showLogin0Regis
@@ -71,8 +165,35 @@ export default {
       return this.$store.state.app.showLogin
     }
   },
-  mounted () {},
+  mounted () {
+    this.$nextTick(function () {
+      // console.log(this.$socket.emit, 'socket')
+      /* this.$socket.on('checkLogin', function (data) {
+        console.log('checkData', data)
+      })
+      this.$socket.emit('login', '客户端需要帮助了') */
+      // eslint-disable-next-line no-undef
+    })
+  },
   methods: {
+    cancelNotice () {
+      this.showNotice = false
+      for (let i = 0; i < this.noticeArr.length; i++) {
+        if (this.noticeArr[i].new) {
+          updateNotice({ _id: this.noticeArr[i]._id, new: false }).then(res => {
+            this.$store.dispatch('blog/setNewMsg', false)
+          })
+        }
+      }
+    },
+    connectWS () {},
+    myBlog () {
+      const userBlogId = this.$store.state.user.blogId
+      if (userBlogId && userBlogId !== this.$route.params.blogId) {
+        // 如果已经是user的博客首页那就不需要进行push了
+        this.$router.push(`/${this.$store.state.user.blogId}`)
+      }
+    },
     login () {
       this.$store.dispatch('app/setLogin0Regis', true)
       this.$store.dispatch('app/setLogin', true)
@@ -82,7 +203,7 @@ export default {
       this.$store.dispatch('app/setLogin', false)
     },
     logout () {
-      this.$store.dispatch('user/logout').then((res) => {
+      this.$store.dispatch('user/logout').then(res => {
         // console.log(res, 'logout')
       })
     }
@@ -113,7 +234,7 @@ export default {
   display: flex;
   flex-direction: row-reverse;
   padding-right: 80px;
-  button{
+  button {
     background: none;
   }
   .margin {
@@ -129,7 +250,7 @@ export default {
       top: 200%;
       right: 0;
     }
-    .showMsg{
+    .showMsg {
       .avatar {
         display: inline-block;
         width: 30px;
@@ -145,7 +266,7 @@ export default {
       margin: 0;
       position: absolute;
       top: 130%;
-      right:50%;
+      right: 50%;
       z-index: 100;
       width: 100px;
       text-align: center;
@@ -153,13 +274,91 @@ export default {
       list-style: none;
       background: white;
       li {
-        transition: background-color .2s;
+        transition: background-color 0.2s;
         padding: 10px;
       }
       li:hover {
         cursor: pointer;
         background: $darkMColor;
         color: white;
+      }
+    }
+  }
+  .publish_wrap {
+    position: relative;
+    .noticeWrap {
+      position: absolute;
+      top: 135%;
+      right: 15px;
+      width: 450px;
+      box-shadow: $shadow;
+      background: white;
+      border-radius: 10px;
+      .header {
+        margin: 0 10px 10px 10px;
+        line-height: 50px;
+        border-bottom: 1px solid #f3f3f3;
+        position: relative;
+      }
+      .cancel {
+        display: inline-block;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+      }
+      .item {
+        max-height: 85px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        line-height: 85px;
+        padding: 10px;
+        border-bottom: 1px solid #f3f3f3;
+        cursor: pointer;
+        .dot {
+          display: inline-block;
+          width: 5px;
+          height: 5px;
+          margin-top: 30px;
+          border-radius: 50%;
+          background: red;
+        }
+        .logo {
+          vertical-align: top;
+          margin-left: 10px;
+          .svg-icon {
+            font-size: 40px;
+          }
+        }
+        .center {
+          display: inline-block;
+          width: 225px;
+          margin: 0 10px;
+          vertical-align: top;
+          line-height: 20px;
+          white-space: normal;
+          font-size: 14px;
+          .svg-icon {
+            font-size: 12px;
+          }
+          .time {
+            display: block;
+            margin-top: 5px;
+            color: gray;
+            font-size: 12px;
+          }
+        }
+        .cover {
+          img {
+            display: inline-block;
+            width: 86px;
+            height: auto;
+          }
+        }
+      }
+      .item:hover {
+        background: #f3f3f3;
       }
     }
   }

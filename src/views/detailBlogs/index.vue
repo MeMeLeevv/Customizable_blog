@@ -41,6 +41,7 @@
         :needSubmit="needSubmit"
         :insertPaData="insertPaData"
         v-bind:commentsPaPaMsg.sync="commentsPaPaMsg"
+        :cover="articleMsg.cover"
       ></comments>
     </div>
     <div class="pagination">
@@ -61,13 +62,15 @@ import titleBlog from '@/components/addComponents/editor/index.vue'
 import settingDialog from '@/views/detailBlogs/settingDialog.vue'
 import comments from '@/views/detailBlogs/comments.vue'
 import { parseTime, deepClone } from '@/utils/index.js'
-import { updateArticle } from '@/api/article'
-import { createPacomment } from '@/api/comment'
+import { updateArticle, fetchArticle } from '@/api/article'
+import { createPacomment, fetchPacomment, fetchSoncomment } from '@/api/comment'
 export default {
   name: 'detailBlogs',
+  inject: ['reload'],
   data () {
     return {
       editSetting: false,
+      hideNavbar: true,
       tapString: '',
       needContent: false, // 是否需要去editor那里去html数据
       articleMsg: {
@@ -148,11 +151,11 @@ export default {
       commentsPaPaMsg: [],
       insertPaData: {},
       faComment: {
-        articleID: '1345',
+        articleId: this.$route.params.articleId,
         commentId: '',
         content: '',
         time: '',
-        userId: '667',
+        userId: this.$store.state.userId,
         likes: [],
         reports: [],
         hasSon: false, // 如果为true就去拉请求
@@ -163,6 +166,27 @@ export default {
     }
   },
   created () {
+    fetchArticle(this.$route.params.articleId).then((res) => {
+      if (res.data.length === 0) { // 没有此文章，用户操作为新建，不需要初始化
+      } else { // 初始化文章
+        this.articleMsg = Object.assign(this.articleMsg, res.data[0])
+        fetchPacomment(this.$route.params.articleId).then(paC => {
+          if (paC.data.length !== 0) {
+            for (let i = 0; i < paC.data.length; i++) {
+              fetchSoncomment(paC.data[i].commentId).then(sonC => {
+                if (sonC.data.length !== 0) {
+                  paC.data[i].commentsSonMsg = paC.data[i].commentsSonMsg.concat(sonC.data)
+                }
+              })
+            }
+            this.commentsPaPaMsg = this.commentsPaPaMsg.concat(paC.data)
+            // console.log(this.commentsPaPaMsg, 'this.commentsPaPaMsg')
+          }
+        })
+        // console.log(this.articleMsg, 'this.articleMsg')
+      }
+    })
+
     // // console.log(titleBlog.methods.getContent(), 'titleBlog')
     /* if (!this.$route.params.id) { // 如果id为空，则表示是进入一个空白编辑页面,新增文章数据插入数据库
 
@@ -174,6 +198,7 @@ export default {
     commentsPaPaMsg: {
       handler (newV) {
         this.comNums = 0
+        if (newV.length === 0) return
         for (let i = 0; i < newV.length; i++) {
           this.comNums++
           this.comNums += newV[i].commentsSonMsg.length
@@ -184,11 +209,12 @@ export default {
     }
   },
   computed: {},
-  mounted () {},
+  mounted () {
+  },
   methods: {
     submitPaCom () {
       // 根据
-      this.faComment.articleID = this.$route.params.id
+      this.faComment.articleId = this.$route.params.articleId
       this.faComment.time = parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}')
       this.faComment.userId = this.$store.state.user.userId
       this.faComment.name = this.$store.state.user.name
@@ -236,6 +262,7 @@ export default {
           this.editSetting = false
           // console.log(res, 'res')
         })
+        this.reload() // 这里发布之后要刷新页面，否则会出现评论区有bug
       }, 100)
     }
   },

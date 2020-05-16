@@ -1,6 +1,6 @@
 <template>
   <div class="Fonts">
-    <configHeader backRouter="/config/Design" lastTitle="设计" nowTitle="字体"></configHeader>
+    <configHeader :backRouter="`/${this.$store.state.user.blogId}/config/Design`"  lastTitle="设计" nowTitle="字体"></configHeader>
     <div class="tabbar" ref="tabbar" @click="switchTab">
       <span class="item" :data-index="0">汉仪</span>
       <span class="item" :data-index="1">方正</span>

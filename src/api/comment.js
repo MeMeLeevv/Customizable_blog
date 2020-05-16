@@ -8,11 +8,19 @@ export function fetchList (query) {
   })
 }
 
-export function fetchcomment (id) {
+export function fetchPacomment (articleId) {
   return request({
-    url: '/comment/detail',
+    url: '/paComment/list',
     method: 'get',
-    params: { id }
+    params: { articleId }
+  })
+}
+
+export function fetchSoncomment (PaPaCommentId) {
+  return request({
+    url: '/sonComment/list',
+    method: 'get',
+    params: { PaPaCommentId }
   })
 }
 

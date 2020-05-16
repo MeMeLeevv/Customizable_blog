@@ -253,12 +253,28 @@ export default {
     this.fileList = [
       {
         name: 'detailBlogCover.jpg',
-        url:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQSCjFM-yHrpg-GCM7Q3v575IDvDS6PENLr6Im3fd-_OrNB3CJl&usqp=CAU'
+        url: this.detailarticleMsg.cover
       }
     ]
   },
-  watch: {},
+  watch: {
+    articleMsg: {
+      handler (newV) {
+        this.detailarticleMsg = deepClone(this.articleMsg)
+        if (this.detailarticleMsg.cover) {
+          this.fileList = [
+            {
+              name: 'detailBlogCover.jpg',
+              url: this.detailarticleMsg.cover
+            }
+          ]
+        } else {
+          this.fileList = []
+        }
+      },
+      deep: true
+    }
+  },
   computed: {},
   mounted () {},
   methods: {

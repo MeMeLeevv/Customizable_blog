@@ -1,6 +1,6 @@
 <template>
   <div class="Design">
-    <configHeader backRouter="/" lastTitle="首页" nowTitle="设计"></configHeader>
+    <configHeader :backRouter="`/${this.$store.state.user.blogId}`" lastTitle="首页" nowTitle="设计"></configHeader>
     <configMenu :subMenu="true" class="menu" :menuData="menuData" />
   </div>
 </template>
@@ -16,17 +16,17 @@ export default {
         {
           name: '字体',
           hover: false,
-          path: '/config/Design/Fonts'
+          path: `/${this.$store.state.user.blogId}/config/Design/Fonts`
         },
         {
           name: '颜色',
           hover: false,
-          path: '/config/Design/Colors'
+          path: `/${this.$store.state.user.blogId}/config/Design/Colors`
         },
         {
           name: 'live2d看板娘',
           hover: false,
-          path: '/config/Design/Cartoons'
+          path: `/${this.$store.state.user.blogId}/config/Design/Cartoons`
         }
       ]
     }

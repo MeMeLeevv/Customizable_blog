@@ -186,72 +186,7 @@ export default {
   created () {
   },
   mounted () {
-    if (this.needTitle) {
-      this.editor = new Editor({
-        content: this.content,
-        autoFocus: false,
-        extensions: [
-          new Blockquote(),
-          new BulletList(),
-          new HardBreak(),
-          new Heading({ levels: [1, 2, 3] }),
-          new ListItem(),
-          new OrderedList(),
-          new HorizontalRule(),
-          new TodoItem(),
-          new TodoList(),
-          new Link(),
-          new Bold(),
-          new Italic(),
-          new Strike(),
-          new Underline(),
-          new History(),
-          new Doc(),
-          new Title(),
-          new Placeholder({
-            showOnlyCurrent: false,
-            emptyNodeText: node => {
-              if (node.type.name === 'title') {
-                return 'Give me a name'
-              }
-              return 'Write something'
-            }
-          })
-        ]
-      })
-    } else {
-      this.editor = new Editor({
-        content: this.content,
-        extensions: [
-          new Blockquote(),
-          new BulletList(),
-          new HardBreak(),
-          new Heading({ levels: [1, 2, 3] }),
-          new ListItem(),
-          new OrderedList(),
-          new HorizontalRule(),
-          new TodoItem(),
-          new TodoList(),
-          new Link(),
-          new Bold(),
-          new Italic(),
-          new Strike(),
-          new Underline(),
-          new History(),
-          new Placeholder({
-            showOnlyCurrent: false,
-            emptyNodeText: node => {
-              return 'Write something'
-            }
-          })
-        ],
-        autoFocus: false
-      })
-    }
-    setTimeout(() => {
-      // document.getElementsByClassName('detailBlogs_title')[0].onfocus = this.focus // focus和blur会被同时触发
-      // document.getElementsByClassName('detailBlogs_title')[0].onblur = this.blur
-    }, 2000)
+    this.initEditor()
   },
   watch: {
     needContent: {
@@ -261,9 +196,88 @@ export default {
           this.$emit('update:content', this.getContent())
         }
       }
+    },
+    content (newV) {
+      this.initEditor()
     }
   },
+  updated: function () {
+    this.$nextTick(function () {
+      var ProseMirror = document.getElementsByClassName('ProseMirror')
+      var parent = document.getElementsByClassName('editor__content')[0]
+      if (ProseMirror.length === 2) { // 点击文章列表进入具体文章时，editor赋值时会造成原来的+新插入的，所以会有两个，要删除第一个编辑器
+        parent.removeChild(ProseMirror[0])
+        console.log(ProseMirror, 'ProseMirror')
+      }
+    // Code that will run only after the
+    // entire view has been re-rendered
+    })
+  },
   methods: {
+    initEditor () {
+      if (this.needTitle) {
+        this.editor = new Editor({
+          content: this.content,
+          autoFocus: false,
+          extensions: [
+            new Blockquote(),
+            new BulletList(),
+            new HardBreak(),
+            new Heading({ levels: [1, 2, 3] }),
+            new ListItem(),
+            new OrderedList(),
+            new HorizontalRule(),
+            new TodoItem(),
+            new TodoList(),
+            new Link(),
+            new Bold(),
+            new Italic(),
+            new Strike(),
+            new Underline(),
+            new History(),
+            new Doc(),
+            new Title(),
+            new Placeholder({
+              showOnlyCurrent: false,
+              emptyNodeText: node => {
+                if (node.type.name === 'title') {
+                  return 'Give me a name'
+                }
+                return 'Write something'
+              }
+            })
+          ]
+        })
+      } else {
+        this.editor = new Editor({
+          content: this.content,
+          extensions: [
+            new Blockquote(),
+            new BulletList(),
+            new HardBreak(),
+            new Heading({ levels: [1, 2, 3] }),
+            new ListItem(),
+            new OrderedList(),
+            new HorizontalRule(),
+            new TodoItem(),
+            new TodoList(),
+            new Link(),
+            new Bold(),
+            new Italic(),
+            new Strike(),
+            new Underline(),
+            new History(),
+            new Placeholder({
+              showOnlyCurrent: false,
+              emptyNodeText: node => {
+                return 'Write something'
+              }
+            })
+          ],
+          autoFocus: false
+        })
+      }
+    },
     focus (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
       // console.log(e, 'focus')
       this.hideBar = true

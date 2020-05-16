@@ -2,7 +2,7 @@
   <div class="blogList">
     <div class="control-button-wrapper">
       <div class="iconBar">
-        <button class="editbtn" @click.stop="goBlankEditBlog">编辑文章</button>
+        <button class="editbtn" @click.stop="goBlankEditBlog">新建文章</button>
       </div>
       <div class="iconBar">
         <button class="btn" @click="$emit('update:showEditDialog', true)">
@@ -89,14 +89,14 @@
         :class="`blog-single-column--container ${blogListSetting.imgPlace === '1' ? 'imgReverse' : 'imgNormal'}`"
         v-for="(item, index) in blogData"
         :key="index"
-        @click="toDetailPage"
+        @click="toDetailPage(item.articleId)"
       >
         <div class="hr"></div>
         <div
           :class="`blog-single-column--text ${blogListSetting.align === '1' ? 'text-left' :blogListSetting.align === '2' ? 'text-center' :'text-right'}`"
         >
           <h1 ref="single_title" class="blog-title">{{item.title}}</h1>
-          <div class="blog-desc">{{item.content}}</div>
+          <div class="blog-desc">{{item.Summary}}</div>
           <div class="blog-meta">{{item.publicTime}}·{{item.author}}</div>
         </div>
         <div class="blog-article-spacer"></div>
@@ -111,14 +111,14 @@
         v-for="(item, index) in blogData"
         :key="index"
         :class="`blog-sideBySide-row--container ${index % 2 === 0 ? 'rowReverse' : ''}`"
-        @click="toDetailPage"
+        @click="toDetailPage(item.articleId)"
       >
         <div
           :class="`blog-sideBySide-row--text ${blogListSetting.align === '1' ? 'text-left' :blogListSetting.align === '2' ? 'text-center' :'text-right'}`"
         >
           <div class="blog-meta">{{item.publicTime}}·{{item.author}}</div>
           <h1 class="blog-title">{{item.title}}</h1>
-          <div class="blog-desc">{{item.content}}</div>
+          <div class="blog-desc">{{item.Summary}}</div>
         </div>
         <div class="blog-article-spacer"></div>
         <div class="blog-sideBySide-row--img">
@@ -133,14 +133,14 @@
         :key="index"
         :class="`blog-grid-row--container ${blogListSetting.imgPlace === '1' ? 'imgReverse' : 'imgNormal'}`"
         :style="`${blogListSetting.columns === '3' ? 'width:31% ' : blogListSetting.columns === '2' ? 'width:47% ' : blogListSetting.columns === '4' ? 'width:23% ' : ''}`"
-        @click="toDetailPage"
+        @click="toDetailPage(item.articleId)"
       >
         <div
           :class="`blog-grid-row--text ${blogListSetting.align === '1' ? 'text-left' :blogListSetting.align === '2' ? 'text-center' :'text-right'}`"
         >
           <div class="blog-meta">{{item.publicTime}}</div>
           <h1 class="blog-title">{{item.title}}</h1>
-          <div class="blog-desc">{{item.content}}</div>
+          <div class="blog-desc">{{item.Summary}}</div>
         </div>
         <div class="blog-article-spacer"></div>
         <div class="blog-grid-row--img">
@@ -160,14 +160,14 @@
         ref="articles"
         :class="`blog-Masonry-row--container ${blogListSetting.imgPlace === '1' ? 'imgReverse' : 'imgNormal'}`"
         :style="`${blogListSetting.columns === '3' ? 'width:31% ' : blogListSetting.columns === '2' ? 'width:47% ' : blogListSetting.columns === '4' ? 'width:23% ' : ''}`"
-        @click="toDetailPage"
+        @click="toDetailPage(item.articleId)"
       >
         <div
           :class="`blog-Masonry-row--text ${blogListSetting.align === '1' ? 'text-left' :blogListSetting.align === '2' ? 'text-center' :'text-right'}`"
         >
           <div class="blog-meta">{{item.publicTime}}</div>
           <h1 class="blog-title">{{item.title}}</h1>
-          <div class="blog-desc">{{item.content}}</div>
+          <div class="blog-desc">{{item.Summary}}</div>
         </div>
         <div class="blog-article-spacer"></div>
         <div class="blog-Masonry-row--img" ref="img">
@@ -181,15 +181,15 @@
   </div>
 </template>
 <script>
-import { fetchList, createArticle } from '@/api/article'
-
+import { createArticle } from '@/api/article'
 export default {
   name: 'blogList',
   props: {
     showEditDialog: {
       type: Boolean,
       default: false
-    }
+    },
+    blogData: Array
   },
   data () {
     return {
@@ -261,89 +261,7 @@ export default {
         align: this.$store.state.blog.blogListSetting.align,
         columns: this.$store.state.blog.blogListSetting.columns,
         imgPlace: this.$store.state.blog.blogListSetting.imgPlace
-      },
-      blogData: [
-        {
-          publicTime: '5/30/19',
-          cover:
-            'https://gblobscdn.gitbook.com/assets%2F-M2My8NMVFW2o4zRm3mw%2F-M4J-mXV6x7dEeGWpst4%2F-M4J280rtOMuW94lu27x%2F%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20200407174757.png?alt=media&token=52b9a236-333d-43ac-9e93-3b8218b8d289',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'https://tse1-mm.cn.bing.net/th?id=OIP.EYLYPw7BX_IZWsLUbwWONwHaEo&pid=Api&rs=1'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'https://tse3-mm.cn.bing.net/th?id=OIP.lRHqUqTgMQEIwVdrwuRZJwHaEo&pid=Api&rs=1'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'http://up.enterdesk.com/edpic_360_360/0d/5b/13/0d5b1395af7cf6441276d37b1caf947c.jpg'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'https://tse4-mm.cn.bing.net/th?id=OIP.m0a8SFlaGp5dFnbjRy4_pwHaEo&pid=Api&rs=1'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'https://img.3dmgame.com/uploads/images/news/20190422/1555916712_341388.jpg'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'https://up.enterdesk.com/edpic_360_360/c5/64/ca/c564ca438a4f67b1b29b72430542ec63.jpg'
-        },
-        {
-          publicTime: '5/30/19',
-          id: '',
-          title: '粉彩',
-          content:
-            'Angles and architecture. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          author: 'Ana Cooper',
-          cover:
-            'https://up.enterdesk.com/edpic_360_360/c5/64/ca/c564ca438a4f67b1b29b72430542ec63.jpg'
-        }
-      ]
+      }
     }
   },
   watch: {
@@ -368,9 +286,6 @@ export default {
     }
   },
   created () {
-    fetchList({ blogId: this.$store.state.user.blogId }).then(res => {
-      // console.log(res, 'res')
-    })
     /* 初始化时根据布局规定cover最大高度以及编辑dialog需要显示的条例 */
     const layout = this.blogListSetting.layout
     if (layout === '1') {
@@ -415,11 +330,11 @@ export default {
   methods: {
     goBlankEditBlog () {
       createArticle({ blogId: this.$store.state.user.blogId }).then(res => {
-        this.$router.push(`/Blogs/${res.data.articleId}`)
+        this.$router.push(`/${this.$route.params.blogId}/articles/${res.data.articleId}`)
       }) // 如果为空推出后要销毁
     },
-    toDetailPage () {
-      this.$router.push('/Blogs')
+    toDetailPage (articleId) {
+      this.$router.push(`/${this.$route.params.blogId}/articles/${articleId}`)
     },
     /* 检测加载图片的尺寸，single布局的图片加载高度不超过700 ,图片加载顺序不一致 */
     getImgSize (e, index) {
@@ -467,7 +382,7 @@ export default {
             ...this.articleMaxH
           ) +
             this.marginBottom +
-            90 * 2 +
+            180 * 2 +
             6}px`
         // // console.log(this.articleH, 'this.articleH')
         // // console.log(this.articleMaxH, 'MaxH')
@@ -476,7 +391,8 @@ export default {
       }
     }
   },
-  components: {}
+  components: {
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -596,7 +512,6 @@ export default {
   .blogWrapper {
     cursor: pointer;
   }
-
   .blog-Masonry-2-row {
     width: 100%;
     height: 1800px; // 瀑布流高度必须要有且大于子元素撑起的高度 https://jessieji.com/2019/pure-css-masonry
@@ -614,7 +529,6 @@ export default {
       order: 2;
     }
   }
-
   .blog-Masonry-3-row {
     width: 100%;
     height: 1800px; // 瀑布流高度必须要有且大于子元素撑起的高度 https://jessieji.com/2019/pure-css-masonry
@@ -636,7 +550,6 @@ export default {
       order: 3;
     }
   }
-
   .blog-Masonry-4-row {
     width: 100%;
     height: 1800px; // 瀑布流高度必须要有且大于子元素撑起的高度 https://jessieji.com/2019/pure-css-masonry
@@ -666,7 +579,6 @@ export default {
       padding: 0;
     }
   }
-
   .blog-Masonry-row--container {
     display: flex;
     margin-bottom: 50px;
@@ -682,7 +594,7 @@ export default {
       }
     }
     .blog-article-spacer {
-      height: 59px;
+      height: 30px;
     }
     .blog-Masonry-row--text {
       .blog-title {
@@ -723,7 +635,7 @@ export default {
         }
       }
       .blog-article-spacer {
-        height: 59px;
+        height: 30px;
       }
       .blog-grid-row--text {
         .blog-title {
@@ -766,7 +678,7 @@ export default {
       }
       .blog-article-spacer {
         width: 15%;
-        height: 59px;
+        height: 30px;
       }
       .blog-sideBySide-row--text {
         width: calc(100% - 46% - 10%);
@@ -806,7 +718,7 @@ export default {
         }
       }
       .blog-article-spacer {
-        height: 59px;
+        height: 30px;
       }
       .blog-single-column--text {
         .blog-title {

@@ -8,7 +8,7 @@
       @changeLive2d="showlive2d"
     ></live2d>
 
-    <configHeader backRouter="/config/Design" lastTitle="设计" nowTitle="live2d看板娘"></configHeader>
+    <configHeader :backRouter="`/${this.$store.state.user.blogId}/config/Design`" lastTitle="设计" nowTitle="live2d看板娘"></configHeader>
     <div class="wrap">
       <div class="item size">
         <div class="title">初始大小 : (请直接在模型上编辑)</div>

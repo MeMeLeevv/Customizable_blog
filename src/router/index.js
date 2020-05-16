@@ -12,10 +12,10 @@ export const constantRoutes = [ // 省略了:id,记得补上
     path: '/',
     name: 'Home',
     component: Layout,
-    redirect: '/index',
+    redirect: '/:blogId',
     children: [
       {
-        path: 'index',
+        path: '/:blogId',
         name: 'index',
         components: {
           main: () => import('@/views/index/index'),
@@ -27,7 +27,7 @@ export const constantRoutes = [ // 省略了:id,记得补上
         }
       },
       {
-        path: 'Blogs/:id',
+        path: '/:blogId/articles/:articleId',
         name: 'Blogs',
         components: {
           main: () => import('@/views/detailBlogs/index'),
@@ -74,12 +74,12 @@ export const constantRoutes = [ // 省略了:id,记得补上
 
 // 异步挂载的路由
 // 动态需要根据权限加载的路由表
-export const asyncRoutes = [
+export const asyncRoutes = [ // 此时是登录状态。所以blogId是肯定会有的
   {
-    path: '/config',
+    path: '/:blogId/config',
     name: 'config',
     component: Layout,
-    redirect: '/config/index',
+    redirect: '/:blogId/config/index',
     /* beforeEnter: (to, from, next) => {
       // ...
       if (!store.state.user.hasLogin) {
@@ -98,7 +98,8 @@ export const asyncRoutes = [
         path: 'index',
         name: 'config-index',
         components: {
-          default: () => import('@/views/config/index')
+          default: () => import('@/views/config/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'config-index',
@@ -109,7 +110,8 @@ export const asyncRoutes = [
         path: 'BlogsSettings',
         name: 'blogs-settings',
         components: {
-          default: () => import('@/views/config/blogs-settings/index')
+          default: () => import('@/views/config/blogs-settings/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'blogs-settings',
@@ -120,7 +122,8 @@ export const asyncRoutes = [
         path: 'Design',
         name: 'Design',
         components: {
-          default: () => import('@/views/config/design/index')
+          default: () => import('@/views/config/design/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'design',
@@ -131,7 +134,8 @@ export const asyncRoutes = [
         path: 'Design/Fonts',
         name: 'Fonts',
         components: {
-          default: () => import('@/views/config/design/fonts/index')
+          default: () => import('@/views/config/design/fonts/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'fonts',
@@ -142,7 +146,8 @@ export const asyncRoutes = [
         path: 'Design/Colors',
         name: 'Colors',
         components: {
-          default: () => import('@/views/config/design/colors/index')
+          default: () => import('@/views/config/design/colors/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'colors',
@@ -153,7 +158,8 @@ export const asyncRoutes = [
         path: 'Design/Cartoons',
         name: 'Cartoons',
         components: {
-          default: () => import('@/views/config/design/cartoons/index')
+          default: () => import('@/views/config/design/cartoons/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'cartoons',
@@ -164,7 +170,8 @@ export const asyncRoutes = [
         path: 'Design/Cursors',
         name: 'Cursors',
         components: {
-          default: () => import('@/views/config/design/cursors/index')
+          default: () => import('@/views/config/design/cursors/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'cursors',
@@ -175,7 +182,8 @@ export const asyncRoutes = [
         path: 'CommentsSettings',
         name: 'CommentsSettings',
         components: {
-          default: () => import('@/views/config/comments-settings/index')
+          default: () => import('@/views/config/comments-settings/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'comments',
@@ -186,7 +194,8 @@ export const asyncRoutes = [
         path: 'Likes',
         name: 'Likes',
         components: {
-          default: () => import('@/views/config/likes/index')
+          default: () => import('@/views/config/likes/index'),
+          main: () => import('@/views/index/index')
         },
         meta: {
           title: 'likes',

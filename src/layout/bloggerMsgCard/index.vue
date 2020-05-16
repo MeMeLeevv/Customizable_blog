@@ -6,6 +6,10 @@
     @mouseenter="$store.state.app.isEditState && !editState && (showMap = true)"
     @mouseleave="$store.state.app.isEditState && !editState && (showMap = false)"
   >
+
+  <div v-if="timeLine" class="showTimeLine">
+    <timeLine @hide="timeLine=false" class="timeline" :blogData="blogData"></timeLine>
+  </div>
     <transition name="slide-fade">
       <div v-if="showMap" class="map">
         <div class="avatarMap"></div>
@@ -41,13 +45,9 @@
       <div class="articalGroup">
         <span class="post item">
           <div class="num">116</div>
-          <div class="belong">文章</div>
+          <div class="belong">文章</div> <!-- 点击跳转到blogList那里,设锚id，点击就直接到文章列表那个位置？ -->
         </span>
-        <span class="tags item">
-          <div class="num">116</div>
-          <div class="belong">标签</div>
-        </span>
-        <span class="archive item">
+        <span class="archive item" @click="showTimeLine">
           <div class="num">116</div>
           <div class="belong">归档</div>
         </span>
@@ -90,7 +90,7 @@
           </div>
         </transition>
         <div class="socialLink">
-          <a v-for="(item, index) in blogData.socialLink" target="blank" :key="index" :href="item">
+          <a v-for="(item, index) in blogMsg.socialLink" target="blank" :key="index" :href="item">
             <svg-icon class="icon" :icon-class="pickLogo(item)" />
           </a>
           <span @click="showEditLink">
@@ -102,7 +102,7 @@
       <div class="detailTags">
         <h5 class="title">标签</h5>
         <div class="wrap">
-          <span v-for="(item, index) in blogData.tags" :key="index" class="item">{{item}}</span>
+          <span v-for="(item, index) in blogMsg.tags" :key="index" class="item">{{item}}</span>
         </div>
       </div>
       <!--         <div class="friends">
@@ -139,6 +139,7 @@
 <script>
 import { Message, MessageBox } from 'element-ui'
 import { deepClone } from '@/utils/index'
+import timeLine from '@/components/timeLine'
 export default {
   name: 'bloggerMsgCard',
   data () {
@@ -153,13 +154,14 @@ export default {
       lineActive: false,
       pickLinkLogo: 'dotCircle',
       showLinkLogo: '',
+      timeLine: false,
       user: {
         avatar:
           'https://gss0.baidu.com/-Po3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/8cb1cb13495409231efd8e7d9458d109b3de4919.jpg',
         name: '小可爱一枚~',
         desc: '这个人很懒，什么也没留下'
       },
-      blogData: {
+      blogMsg: {
         socialLink: [
           'https://www.youtube.com/',
           'https://www.bilibili.com/',
@@ -178,6 +180,9 @@ export default {
       linkTip: false,
       vmodelSocialLink: []
     }
+  },
+  props: {
+    blogData: Array
   },
   watch: {
     showPersonalCart (newV) {
@@ -208,10 +213,14 @@ export default {
       immediate: true
     }
   },
-  created () {},
+  created () {
+  },
   computed: {},
   mounted () {},
   methods: {
+    showTimeLine () {
+      this.timeLine = true
+    },
     pickLogo (item) {
       // 展示区根据数组元素来链接logo
       return `${
@@ -245,7 +254,7 @@ export default {
     showEditLink () {
       // 显示编辑链接框
       this.socialLinkEdit = true
-      this.blogForm.socialLink = deepClone(this.blogData.socialLink)
+      this.blogForm.socialLink = deepClone(this.blogMsg.socialLink)
     },
     deleteLink (index) {
       MessageBox.confirm('确定删除改链接吗？', '提示', {
@@ -260,7 +269,7 @@ export default {
     addSocialLink () {
       if (!this.addLinkValue) {
         // 此时没有添加链接
-        this.blogData.socialLink = deepClone(this.blogForm.socialLink)
+        this.blogMsg.socialLink = deepClone(this.blogForm.socialLink)
         this.socialLinkEdit = false
         return
       }
@@ -274,7 +283,7 @@ export default {
       } else {
         // 添加
         this.blogForm.socialLink.push(this.addLinkValue)
-        this.blogData.socialLink = deepClone(this.blogForm.socialLink)
+        this.blogMsg.socialLink = deepClone(this.blogForm.socialLink)
         this.vmodelSocialLink = deepClone(this.blogForm.socialLink)
         this.socialLinkEdit = false
         this.addLinkValue = ''
@@ -315,7 +324,9 @@ export default {
       }
     }
   },
-  components: {}
+  components: {
+    timeLine
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -381,6 +392,17 @@ export default {
   left: -290px;
   top: 200px;
   transition: left 1s;
+  .timeline {
+    position: absolute;
+    left: 110%;
+    top: -200px;
+    width: 767px;
+    max-height: 650px;
+    padding: 10px;
+    overflow-y: auto;
+    box-shadow: $shadow;
+    border-radius: 10px;
+  }
   .map {
     position: absolute;
     top: 0;
