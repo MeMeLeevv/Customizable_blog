@@ -7,10 +7,14 @@ const state = {
   blogId: '',
   name: '',
   avatar: '',
-  desc: ''
+  desc: '',
+  isBlogger: false
 }
 
 const mutations = {
+  SET_BLOGGER: (state, isBlogger) => {
+    state.isBlogger = isBlogger
+  },
   SET_HASLOGIN: (state, hasLogin) => {
     state.hasLogin = hasLogin
   },
@@ -32,6 +36,18 @@ const mutations = {
 }
 
 const actions = {
+  setAvatar ({ commit }, value) {
+    commit('SET_AVATAR', value)
+  },
+  setDesc ({ commit }, value) {
+    commit('SET_DESC', value)
+  },
+  setName ({ commit }, value) {
+    commit('SET_NAME', value)
+  },
+  setBlogger ({ commit }, value) {
+    commit('SET_BLOGGER', value)
+  },
   // the first time user get into this websize
   firstShow ({ commit, dispatch }) {
     return new Promise((resolve, reject) => {

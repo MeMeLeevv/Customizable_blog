@@ -1,7 +1,7 @@
 <template>
   <div class="editor">
     <!-- 只在hover的时候在大容器的编辑器加上篮筐 -->
-    <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, focused, getMarkAttrs }">
+    <editor-menu-bar v-if="editable" :editor="editor" v-slot="{ commands, isActive, focused, getMarkAttrs }">
       <div class="menubar is-hidden" :class="{ 'is-focused': focused }">
         <button class="menubar__button" @click="commands.undo">
           <svg-icon class="svg_icon" icon-class="undo" />
@@ -107,6 +107,7 @@
     </editor-menu-bar>
 
     <editor-menu-bubble
+      v-if="editable"
       class="menububble"
       :editor="editor"
       @hide="hideLinkMenu"
@@ -180,7 +181,8 @@ export default {
       editor: null,
       linkUrl: null,
       linkMenuIsActive: false,
-      hideBubble: true
+      hideBubble: true,
+      editable: false
     }
   },
   created () {
@@ -199,6 +201,18 @@ export default {
     },
     content (newV) {
       this.initEditor()
+    },
+    editable () {
+      console.log(this.editable, 'editor')
+      this.editor.setOptions({
+        editable: this.editable
+      })
+    },
+    '$store.state.user.isBlogger': {
+      handler (val) {
+        this.editable = val
+      },
+      immediate: true
     }
   },
   updated: function () {
@@ -217,6 +231,7 @@ export default {
     initEditor () {
       if (this.needTitle) {
         this.editor = new Editor({
+          editable: this.editable,
           content: this.content,
           autoFocus: false,
           extensions: [
@@ -250,6 +265,7 @@ export default {
         })
       } else {
         this.editor = new Editor({
+          editable: this.editable,
           content: this.content,
           extensions: [
             new Blockquote(),
@@ -321,6 +337,9 @@ export default {
   font-weight: 500;
   font-size: 3rem;
 }
+.detailBlogs_title:focus {
+  outline: none;
+}
 
 .editor *.is-empty:nth-child(1)::before,
 .editor *.is-empty:nth-child(2)::before {
@@ -390,13 +409,13 @@ export default {
 
 .editor {
   position: relative;
-  max-width: 35rem;
+  max-width: 100%;
   margin: 0 auto 5rem auto;
 
-  &__content:hover {
+/*   &__content:hover {
     border-radius: 3px;
-    box-shadow: 0 0 0 2px rgba($color: #0888c8, $alpha: 0.5);
-  }
+    box-shadow: 0 0 0 2px color(primary);
+  } */
 
   &__content {
     overflow-wrap: break-word;

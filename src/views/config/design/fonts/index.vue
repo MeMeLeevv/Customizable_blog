@@ -11,7 +11,7 @@
         :style="`width: ${lineWAL[tabIndex].lineWidth}px; left: ${lineWAL[tabIndex].lineLeft}px`"
       ></span>
     </div>
-    <div class="showFontWrap" style="height: calc(100vh - 234px);">
+    <div class="showFontWrap" style="height: calc(100vh - 300px);">
       <!-- 点击后在store中更换body里font的className -->
       <div
         :class="`item ${usingFontName === item.fontName ? 'active' : ''} ${item.fontName}`"

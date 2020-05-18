@@ -10,7 +10,7 @@
   <div v-if="timeLine" class="showTimeLine">
     <timeLine @hide="timeLine=false" class="timeline" :blogData="blogData"></timeLine>
   </div>
-    <transition name="slide-fade">
+    <transition v-if="isBlogger" name="slide-fade">
       <div v-if="showMap" class="map">
         <div class="avatarMap"></div>
         <span class="editBtn" @click="(editState = true) && (showMap = false)">编辑个人信息卡</span>
@@ -18,15 +18,12 @@
     </transition>
     <!-- 小人卡片，外层负责方向翻转，里面的svg负责walk-->
     <div class="main">
-      <!-- <div class="editSvgG">
-          <svg-icon class="icon" title="确定" icon-class="check" />
-          <svg-icon class="icon" title="取消" icon-class="cancel" />
-      </div>-->
       <div class="avatar">
-        <img :src="user.avatar" alt />
+        <img v-if="!editState" :src="bloggerMsg.avatar" alt />
+        <span class="smallUploader" v-else><uploadImg :small="true" @update="updateImg" :fileList="fileList"></uploadImg></span>
       </div>
       <div class="name">
-        <div v-if="!editState">{{user.name}}</div>
+        <div v-if="!editState">{{bloggerMsg.name}}</div>
         <!-- 这里如果为空需要阻止其他操作！！！！messageBox的按钮颜色也要改一改 -->
         <input
           v-else
@@ -35,12 +32,13 @@
           pattern="\S{1,10}"
           type="text"
           title="请输入1-10位之内的非空白字符名字"
-          v-model="user.name"
+          v-model="bloggerMsg.name"
+          @blur="updateName(bloggerMsg.name)"
         />
       </div>
       <div class="desc">
-        <div v-if="!editState">{{user.desc}}</div>
-        <textarea v-else cols="30" rows="2" maxlength="30" title="不超过30个字符" v-model="user.desc"></textarea>
+        <div v-if="!editState">{{bloggerMsg.desc}}</div>
+        <textarea v-else @blur="updateDesc(bloggerMsg.desc)" cols="30" rows="2" maxlength="30" title="不超过30个字符" v-model="bloggerMsg.desc"></textarea>
       </div>
       <div class="articalGroup">
         <span class="post item">
@@ -105,26 +103,6 @@
           <span v-for="(item, index) in blogMsg.tags" :key="index" class="item">{{item}}</span>
         </div>
       </div>
-      <!--         <div class="friends">
-          <h5 class="title">友情链接</h5>
-          <div class="wrap">
-            <a class="item" href>
-              <span>html5</span>
-            </a>
-            <a class="item" href>
-              <span>html5</span>
-            </a>
-            <a class="item" href>
-              <span>html5</span>
-            </a>
-            <a class="item" href>
-              <span>html5</span>
-            </a>
-            <a class="item" href>
-              <span>html5</span>
-            </a>
-          </div>
-      </div>-->
     </div>
     <div
       :class="`tip ${cartoonMoveLeft && 'cartoonMoveLeft'} ${cartoonMoveRight && 'cartoonMoveRight'}`"
@@ -140,26 +118,31 @@
 import { Message, MessageBox } from 'element-ui'
 import { deepClone } from '@/utils/index'
 import timeLine from '@/components/timeLine'
+import { getInfoByBlogId, updateUserInfo } from '@/api/user'
+import { getBlogSetting } from '@/api/blog'
+import uploadImg from '@/components/uploadImg/index.vue'
 export default {
   name: 'bloggerMsgCard',
   data () {
     return {
       showMap: false,
+      isBlogger: false,
       editState: false, // 此时是否为可编辑状态
       showMinelog: false,
       socialLinkEdit: false,
       showPersonalCart: false,
       cartoonMoveLeft: false,
       cartoonMoveRight: false,
+      fileList: [],
       lineActive: false,
       pickLinkLogo: 'dotCircle',
       showLinkLogo: '',
       timeLine: false,
-      user: {
+      bloggerMsg: {
         avatar:
-          'https://gss0.baidu.com/-Po3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/8cb1cb13495409231efd8e7d9458d109b3de4919.jpg',
-        name: '小可爱一枚~',
-        desc: '这个人很懒，什么也没留下'
+          '',
+        name: '',
+        desc: ''
       },
       blogMsg: {
         socialLink: [
@@ -185,6 +168,25 @@ export default {
     blogData: Array
   },
   watch: {
+    '$route.params.blogId': {
+      handler (val) {
+        getInfoByBlogId(val).then(res => {
+          if (res.code === 200) {
+            this.bloggerMsg = res.data
+          }
+        })
+        getBlogSetting(val).then(res => {
+
+        })
+      },
+      immediate: true
+    },
+    '$store.state.user.isBlogger': {
+      handler (val) {
+        this.isBlogger = val
+      },
+      immediate: true
+    },
     showPersonalCart (newV) {
       if (newV) {
         // 此时正是卡片展开时，卡片展开动画，小人走路，到正确位置后小人需恢复原样
@@ -205,6 +207,14 @@ export default {
         if (newV) {
           // 监听编辑信号，即使切换编辑状态下socialLink的数据
           this.vmodelSocialLink = deepClone(this.blogForm.socialLink)
+          if (this.bloggerMsg.avatar) {
+            this.fileList = [
+              {
+                name: 'bloggerAvatar.jpg',
+                url: this.bloggerMsg.avatar
+              }
+            ]
+          }
         } else {
           // 否则，置空对象
           this.vmodelSocialLink = []
@@ -218,6 +228,25 @@ export default {
   computed: {},
   mounted () {},
   methods: {
+    updateImg () {
+      updateUserInfo({ userId: this.$store.state.user.userId, avatar: this.fileList[0].url }).then(res => {
+        this.$store.dispatch('user/setAvatar', this.fileList[0].url)
+      })
+    },
+    updateDesc (value) {
+      if (value) {
+        updateUserInfo({ userId: this.$store.state.user.userId, desc: value }).then(res => {
+          this.$store.dispatch('user/setDesc', value)
+        })
+      }
+    },
+    updateName (value) {
+      if (value) {
+        updateUserInfo({ userId: this.$store.state.user.userId, name: value }).then(res => {
+          this.$store.dispatch('user/setName', value)
+        })
+      }
+    },
     showTimeLine () {
       this.timeLine = true
     },
@@ -325,7 +354,7 @@ export default {
     }
   },
   components: {
-    timeLine
+    timeLine, uploadImg
   }
 }
 </script>
@@ -395,13 +424,14 @@ export default {
   .timeline {
     position: absolute;
     left: 110%;
-    top: -200px;
+    top: -100px;
     width: 767px;
     max-height: 650px;
     padding: 10px;
     overflow-y: auto;
     box-shadow: $shadow;
     border-radius: 10px;
+    background: white;
   }
   .map {
     position: absolute;
@@ -483,6 +513,12 @@ export default {
         border-radius: 50%;
         transition: transform 0.3s;
         box-shadow: $shadow;
+      }
+      .smallUploader {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
       }
     }
     .avatar:hover {
@@ -642,8 +678,8 @@ export default {
           padding: 5px;
           margin: 5px;
           border-radius: 10px;
-          border: 1px solid lightgray;
-          color: lightgray;
+          border: 1px solid color(primary);
+          color: color(primary);
           font-size: 14px;
           transition: border 0.3s, color 0.3s;
         }

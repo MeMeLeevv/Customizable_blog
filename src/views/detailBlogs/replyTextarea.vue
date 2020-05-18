@@ -69,7 +69,7 @@ export default {
       right: 0;
       padding: 1em 2em;
       font-size: 15px;
-      background: #a8a6a1;
+      background: color(primary);
       color: white;
       text-align: center;
       cursor: pointer;

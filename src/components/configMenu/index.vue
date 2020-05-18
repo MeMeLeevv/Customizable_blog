@@ -7,7 +7,7 @@
           <div
             v-if="showLine"
             class="slide_line"
-            :style="`width: ${item.hover ? item.width: '0'}px;${subMenu ? 'border-bottom: 2px solid rgb(49, 49, 49);' : ''}`"
+            :style="`width: ${item.hover ? item.width: '0'}px;${subMenu ? 'border-bottom: 2px solid color(primary);' : ''}`"
           ></div>
         </div>
       </router-link>
@@ -71,7 +71,8 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
+
+<style lang="scss">
 .ConfigMenu {
   padding-top: 22px;
   .menu_item {
@@ -82,12 +83,11 @@ export default {
     font-size: 22px;
     line-height: 28px;
     font-weight: 600;
-    color: rgb(49, 49, 49);
     .slide_line {
       width: 0px;
       height: 0px;
       overflow: hidden;
-      border-bottom: 3px solid rgb(49, 49, 49);
+      border-bottom: 4px solid color(primary);
       transition: width 0.3s;
     }
   }

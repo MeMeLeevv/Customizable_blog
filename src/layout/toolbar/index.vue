@@ -6,9 +6,9 @@
       <div class="status">博客·已发布</div>
     </div>
     <div class="icons">
-      <button>
+      <!-- <button>
         <svg-icon icon-class="phone" />
-      </button>
+      </button> -->
       <button @click.stop="$emit('fullpage')">
         <svg-icon class="reverse" icon-class="fullArrow" />
       </button>

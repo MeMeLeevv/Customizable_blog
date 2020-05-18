@@ -40,6 +40,14 @@ export function getInfoByBlogId (blogId) {
   })
 }
 
+export function updateUserInfo (data) {
+  return request({
+    url: '/userInfo/update',
+    method: 'post',
+    data
+  })
+}
+
 export function logout () {
   return request({
     url: '/logout',

@@ -1,7 +1,7 @@
 <template>
   <div class="uploadImage">
     <el-upload
-      class="cover-uploader"
+      :class="`${small ? 'small-uploader':'cover-uploader'}`"
       :action="action"
       list-type="picture-card"
       name="file"
@@ -14,7 +14,7 @@
       :on-exceed="imgExceed"
     >
       <i class="el-icon-plus"></i>
-      <img v-if="dialogImageUrl" :src="dialogImageUrl" class="cover">
+      <img v-if="dialogImageUrl" :src="dialogImageUrl" :class="`${small ? 'smallCover' : 'cover'}`">
     </el-upload>
     <el-dialog :visible.sync="dialogVisible"
       ><!-- 预览图片 -->
@@ -47,6 +47,10 @@ export default {
       type: String,
       default: ''
     },
+    small: {
+      type: Boolean,
+      defalut: false
+    },
     fileList: {
       type: Array, // [{name: 'detailBlogCover.jpg', url: 'https://xxx.cdn.com/xxx.jpg'}]
       default: function () {
@@ -75,6 +79,7 @@ export default {
       // console.log(response, 'fileSeccess')
       this.fileList.push({ name: 'articleCover.jpg', url: `/api/images/${response.filename}` })
       this.$emit('update:fileList', this.fileList)
+      this.$emit('update')
     },
     /*
     作用：移除已上传的图片，并且要在imgList将它移除
@@ -145,4 +150,7 @@ export default {
   .cover
     width: 250px
     height: 250px
+  .smallCover
+    width: 80px
+    height: 80px
 </style>

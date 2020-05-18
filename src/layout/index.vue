@@ -4,7 +4,7 @@
       <router-view class="sidebar" />
     </transition>
     <div class="main" ref="main">
-      <transition name="slide-fade">
+      <transition v-if="isBlogger" name="slide-fade">
         <div class="triangle" v-show="triangleShow" @click.stop="shrink">
           <svg-icon class="shrink" icon-class="fullArrow" />
         </div>
@@ -22,15 +22,31 @@ export default {
   name: 'Layout',
   data () {
     return {
-      triangleShow: false
+      triangleShow: false,
+      isBlogger: false
+    }
+  },
+  watch: {
+    '$store.state.user.isBlogger': {
+      handler (val) {
+        this.isBlogger = val
+      },
+      immediate: true
     }
   },
   created () {
   },
   computed: {},
-  mounted () {},
+  mounted () {
+    this.$nextTick(function () {
+      this.fullpage()
+    })
+  },
   methods: {
     fullpage () {
+      setTimeout(() => {
+        this.$store.dispatch('blog/setFullPage', true)
+      }, 100)
       this.$refs.main.style.top = `-${scssVar.toolbarHeight}`
       this.$refs.main.style.right = '0px'
       this.$refs.main.style.width = '100%'
@@ -38,6 +54,9 @@ export default {
       this.triangleShow = true
     },
     shrink () {
+      setTimeout(() => {
+        this.$store.dispatch('blog/setFullPage', false)
+      }, 100)
       this.$refs.main.style.top = scssVar.pagePadding
       this.$refs.main.style.right = scssVar.pagePadding
       this.$refs.main.style.width = 'calc(100% - 412px)'

@@ -10,10 +10,18 @@ const state = {
     imgPlace: '2'
   },
   noticeArr: [],
-  hasNewMsg: false
+  hasNewMsg: false,
+  theme: '#bbd3f9',
+  fullPage: false
 }
 
 const mutations = {
+  SETFULLPAGE: (state, value) => {
+    state.fullPage = value
+  },
+  SETTHEME: (state, value) => {
+    state.theme = value
+  },
   SETNEWMSG: (state, value) => {
     state.hasNewMsg = value
   },
@@ -32,6 +40,12 @@ const mutations = {
 }
 
 const actions = {
+  setFullPage ({ commit }, value) {
+    commit('SETFULLPAGE', value)
+  },
+  setTheme ({ commit }, value) {
+    commit('SETTHEME', value)
+  },
   setNewMsg ({ commit }, value) {
     commit('SETNEWMSG', value)
   },

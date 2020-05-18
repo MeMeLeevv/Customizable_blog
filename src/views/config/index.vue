@@ -1,7 +1,7 @@
 <template>
   <div class="config-index">
     <svg-icon class="logo" icon-class="garden" />
-    <configMenu class="menu" :menuData="menuData" />
+    <configMenu v-if="blogId" class="menu" :menuData="menuData" />
   </div>
 </template>
 <script>
@@ -10,33 +10,43 @@ export default {
   name: 'config-index',
   data () {
     return {
-      menuData: [
-        {
-          name: '博客',
-          hover: false,
-          path: `/${this.$store.state.user.blogId}/config/BlogsSettings`
-        }, {
-          name: '设计',
-          hover: false,
-          path: `/${this.$store.state.user.blogId}/config/Design`
-        }, {
-          name: '评论',
-          hover: false,
-          path: `/${this.$store.state.user.blogId}/config/CommentsSettings`
-        }, {
-          name: '喜欢',
-          hover: false,
-          path: `/${this.$store.state.user.blogId}/config/Likes`
-        }, {
-          name: '设置',
-          hover: false,
-          path: `/${this.$store.state.user.blogId}/config/BlogsSettings`
-        }, {
-          name: '帮助',
-          hover: false,
-          path: `/${this.$store.state.user.blogId}/config/BlogsSettings`
-        }
-      ]
+      blogId: '',
+      menuData: []
+    }
+  },
+  watch: {
+    '$store.state.user.blogId': {
+      handler (newV) {
+        this.blogId = newV
+        this.menuData = [
+          {
+            name: '博客',
+            hover: false,
+            path: `/${newV}/config/BlogsSettings`
+          }, {
+            name: '设计',
+            hover: false,
+            path: `/${newV}/config/Design`
+          }, {
+            name: '评论',
+            hover: false,
+            path: `/${newV}/config/CommentsSettings`
+          }, {
+            name: '喜欢',
+            hover: false,
+            path: `/${newV}/config/Likes`
+          }, {
+            name: '设置',
+            hover: false,
+            path: `/${newV}/config/BlogsSettings`
+          }, {
+            name: '帮助',
+            hover: false,
+            path: `/${newV}/config/BlogsSettings`
+          }
+        ]
+      },
+      immediate: true
     }
   },
   created () {

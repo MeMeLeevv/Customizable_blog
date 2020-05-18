@@ -167,18 +167,6 @@ export const asyncRoutes = [ // 此时是登录状态。所以blogId是肯定会
         }
       },
       {
-        path: 'Design/Cursors',
-        name: 'Cursors',
-        components: {
-          default: () => import('@/views/config/design/cursors/index'),
-          main: () => import('@/views/index/index')
-        },
-        meta: {
-          title: 'cursors',
-          icon: 'cursors'
-        }
-      },
-      {
         path: 'CommentsSettings',
         name: 'CommentsSettings',
         components: {

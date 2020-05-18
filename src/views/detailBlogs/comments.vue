@@ -1,5 +1,6 @@
 <template>
   <div class="comments">
+    <div v-if="visitor" class="map"></div>
     <div class="commentItem" v-for="(item, index) in trueShowData" :key="index">
       <div class="avatar">
         <img :src="item.avatar" alt />
@@ -76,6 +77,7 @@ export default {
   data () {
     return {
       replyElem: '', // 存放reply dom元素
+      visitor: true,
       showReplyArea: false, // 是否存在有reply框被打开
       faIndex: '', // 被点击的第一级index
       sonIndex: '',
@@ -104,6 +106,12 @@ export default {
     this.initData()
   },
   watch: {
+    '$store.state.user.hasLogin': {
+      handler (val) {
+        this.visitor = !val
+      },
+      immediate: true
+    },
     'replyElem.$data.submitReply' (newV, oldV) {
       if (newV) {
         this.submitComment(this.replyElem.$data.replyContent)
@@ -140,6 +148,7 @@ export default {
   methods: {
     initData () {
       this.DataTransit = deepClone(this.commentsPaPaMsg)
+
       if (this.DataTransit.length === 0) return
       for (let i = 0; i < this.DataTransit.length; i++) {
         if (this.DataTransit[i].likes.indexOf(this.userId) !== -1) {
@@ -418,6 +427,14 @@ export default {
 </script>
 <style lang="scss" scoped>
 .comments {
+  position: relative;
+  .map {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
   .commentItem {
     .avatar {
       display: inline-block;
@@ -433,7 +450,7 @@ export default {
     .detailMsg,
     .replyArea {
       display: inline-block;
-      width: 492px;
+      width: 90%;
       margin-left: 10px;
       .name {
         font-size: 12px;
@@ -480,6 +497,7 @@ export default {
         }
       }
       .detailReply {
+        max-width: 90%;
         display: inline-block;
         font-size: 14px;
         line-height: 20px;
@@ -492,7 +510,7 @@ export default {
           }
           .beReplycontent {
             padding: 2px 5px;
-            background: #a8a6a1;
+            background: color(primary);
             color: white;
             border-radius: 4px;
           }

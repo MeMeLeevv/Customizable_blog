@@ -114,8 +114,9 @@ export default {
             this.noticeArr = res.data
           }) */
           if (data.code === 200) {
-            that.$store.dispatch('blog/setNoticeArr', data.msg.reverse())
             if (data.msg.length !== 0) {
+              // console.log(data.msg, 'data.msg')
+              that.$store.dispatch('blog/setNoticeArr', data.msg.reverse())
               for (let i = 0; i < data.msg.length; i++) {
                 if (data.msg[i].new) {
                   that.$store.dispatch('blog/setNewMsg', true)
@@ -224,13 +225,24 @@ export default {
   transform: translateX(5px);
   opacity: 0;
 }
+.navbar::before {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: $navbarHeight;
+  background-color: color(primary);
+  z-index: -1;
+}
 .navbar {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 100;
   width: 100%;
-  height: 50px;
+  height: $navbarHeight;
   display: flex;
   flex-direction: row-reverse;
   padding-right: 80px;
@@ -279,7 +291,7 @@ export default {
       }
       li:hover {
         cursor: pointer;
-        background: $darkMColor;
+        background: color(primary);
         color: white;
       }
     }

@@ -1,4 +1,4 @@
-// base color
+// base color 此文件有在其他所有vue文件中注入
 $blue:#324157;
 $light-blue:#3A71A8;
 $red:#C03639;
@@ -15,6 +15,7 @@ $font_tip: #a1a1a1;
 $font_error: #f56c6c;
 $border_color: #f3f3f3;
 $toolbarHeight: 55px;
+$navbarHeight: 50px;
 $pagePadding: 16px;
 $page2Padding: 32px;
 $mainColor: #DEE4FE;
@@ -22,7 +23,7 @@ $darkMColor: #bbd3f9;
 $shadow: 0 0 25px rgba(0, 0, 0, 0.11);
 
 // sidebar
-$menuText:#bfcbd9;
+$menuText:hsl(212, 25%, 80%);
 $menuActiveText:#409EFF;
 $subMenuActiveText:#f4f4f5 ;// https://github.com/ElemeFE/element/issues/12951
 
@@ -33,6 +34,15 @@ $subMenuBg:#1f2d3d;
 $subMenuHover:#001528;
 
 $sideBarWidth: 210px;
+
+/* $colors: (
+  primary: #FFBB00,
+  secondary: #0969A2
+); */
+
+@function color($color-name) {
+  @return var(--color-#{$color-name});
+}
 
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass

@@ -11,7 +11,7 @@
     <configHeader :backRouter="`/${this.$store.state.user.blogId}/config/Design`" lastTitle="设计" nowTitle="live2d看板娘"></configHeader>
     <div class="wrap">
       <div class="item size">
-        <div class="title">初始大小 : (请直接在模型上编辑)</div>
+        <div class="title"> * 初始大小 : (请直接在模型上编辑)</div>
         <span class="width">
           <label for>
             宽度 :
@@ -26,7 +26,7 @@
         </span>
       </div>
       <div class="item position">
-        <div class="title">初始位置 : (请直接在模型上编辑)</div>
+        <div class="title"> * 初始位置 : (请直接在模型上编辑)</div>
         <span class="left">
           <label for>
             左 :
@@ -41,7 +41,7 @@
         </span>
       </div>
       <div class="item selectModel">
-        <span class="title" style="margin-right: 10px">初始模型 :</span>
+        <span class="title" style="margin-right: 10px"> * 初始模型 :</span>
         <el-select
           size="small"
           v-model="$store.state.live2d.model"
@@ -61,7 +61,7 @@
         </el-select>
       </div>
       <div class="item messages">
-        <div class="title">点击时的提示语 :</div>
+        <div class="title"> * 点击时的提示语 :</div>
         <div class="input" v-for="(item, index) in msgs" :key="index">
           <input type="text" @blur="updateStoreMsg(item, index)" v-model="msgs[index]" />
           <span class="delete" @click="deleteMsg(index)" title="删除">
@@ -75,7 +75,7 @@
         </div>
       </div>
       <div class="item chats">
-        <div class="title">聊天 :</div>
+        <div class="title"> * 聊天 :</div>
         <div class="input" v-for="(item, index) in chats" :key="index">
           <input type="text" @blur="updateStoreChat(item, index)" v-model="chats[index]" />
           <span class="delete" @click="deleteChats(index)" title="删除">
@@ -89,7 +89,7 @@
         </div>
       </div>
       <div class="close">
-        <span class="title">关闭此特效 : </span>
+        <span class="title"> * 关闭此特效 : </span>
         <el-switch v-model="closeModel" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
       </div>
     </div>

@@ -1,7 +1,7 @@
 //components/Icon-svg
 <template>
   <svg class="svg-icon" aria-hidden="true">
-    <use :xlink:href="iconName"></use>
+    <use :xlink:href="iconName" />
   </svg>
 </template>
 
@@ -18,17 +18,24 @@ export default {
     iconName () {
       return `#icon-${this.iconClass}`
     }
+  },
+  mounted () {
+    this.$nextTick(function () {
+      // document.body.style.setProperty('--color-primary', '#000000')
+      /* setTimeout(() => {
+        console.log(document.body.style.getPropertyValue('--color-primary'))
+      }, 1000) */
+    })
   }
 }
 </script>
 
-<style lang="sass">
-.svg-icon
-  display:inline-block
-  width: 1em
-  height: 1em
-  vertical-align: -0.15em
-  fill: #3e3e3e
-  overflow: hidden
-
+<style lang="scss">
+.svg-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  overflow: hidden;
+}
 </style>

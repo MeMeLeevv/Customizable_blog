@@ -13,7 +13,7 @@
 
 <script>
 import { asyncRoutes } from '@/router'
-import { Message } from 'element-ui'
+// import { Message } from 'element-ui'
 import live2d from '@/components/live2d/live2d'
 import { getInfoByBlogId } from '@/api/user'
 // import { getBlogSetting } from '@/api/blog'
@@ -57,6 +57,12 @@ export default {
     this.$nextTick(function () {})
   },
   watch: {
+    '$store.state.blog.theme': {
+      handler (newV) {
+        document.body.style.setProperty('--color-primary', newV)
+      },
+      immediate: true
+    },
     '$store.state.app.fontFamily' (newV, oldV) {
       if (newV !== oldV) {
         this.usingFontName = newV
@@ -69,7 +75,7 @@ export default {
         // const that = this
         if (to.params.blogId) {
         // 如果存在blogId ,则去获取
-          console.log(to.params.blogId, '如果存在blogId, 则去获取')
+          // console.log(to.params.blogId, '如果存在blogId, 则去获取')
           // getBlogSetting(to.params.blogId)
           getInfoByBlogId(to.params.blogId).then(res => {
           // that.$store.dispatch('blog/setUserInfo', res.data)
@@ -82,8 +88,8 @@ export default {
         if (this.to === '/') {
           this.$router.push('/tCqtL_yo9')
         }
-        if (
-          !this.$store.state.user.hasLogin &&
+        /* if (
+          !this.$store.state.user.hasLogin && // hasLogin会有延迟，！！！！
         this.to.indexOf('config') !== -1
         ) {
           Message({
@@ -92,7 +98,7 @@ export default {
             duration: 5 * 1000
           })
           this.$router.push('/error/403')
-        }
+        } */
         if (this.to === '/config/Design/Cartoons') {
         // 在设置页面虽然能调用此组件地updateModel，但并没有产生更新，于是设置页面也插入live2d组件（操作直接作用于它），此时这个页面的live2d组件要隐藏
           this.hideModel = true
@@ -114,6 +120,12 @@ export default {
         console.log(asyncRoutes, 'asyncRoutes')
         this.$router.addRoutes(asyncRoutes)
       }
+    },
+    '$store.state.user.blogId': { // 设置博主状态
+      handler (val) {
+        this.$store.dispatch('user/setBlogger', this.$route.params.blogId === val)
+      },
+      immediate: true
     }
   },
   methods: {
@@ -149,6 +161,7 @@ export default {
 </script>
 
 <style lang="scss">
+
 /* html,body{
     cursor: url(/static/strawberry.ico),auto; // 文件地址需放在static中，不能放在assets里，
 } */

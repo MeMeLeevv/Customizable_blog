@@ -21,7 +21,7 @@
       :needContent="needContent"
       v-bind:content.sync="articleMsg.content"
     ></titleBlog>
-    <div class="public">
+    <div class="public" v-if="isBlogger">
       <button @click.stop="editSetting = true" title="发布">
         <svg-icon class="icon" icon-class="publish" />
       </button>
@@ -30,10 +30,10 @@
       <h1>commentsArea({{comNums}})</h1>
       <div class="uiArea">
         <div class="input">
-          <textarea v-model="faComment.content" name id></textarea>
+          <textarea :disabled="visitor" v-model="faContent" name id></textarea>
         </div>
         <div class="submit">
-          <span @click.stop="submitPaCom" class="btn">发布评论</span>
+          <button @click.stop="submitPaCom" class="btn">发布评论</button>
         </div>
       </div>
       <comments
@@ -61,7 +61,7 @@ import navbar from '@/components/navbar'
 import titleBlog from '@/components/addComponents/editor/index.vue'
 import settingDialog from '@/views/detailBlogs/settingDialog.vue'
 import comments from '@/views/detailBlogs/comments.vue'
-import { parseTime, deepClone } from '@/utils/index.js'
+import { parseTime } from '@/utils/index.js'
 import { updateArticle, fetchArticle } from '@/api/article'
 import { createPacomment, fetchPacomment, fetchSoncomment } from '@/api/comment'
 export default {
@@ -72,7 +72,10 @@ export default {
       editSetting: false,
       hideNavbar: true,
       tapString: '',
+      visitor: true,
+      isBlogger: false,
       needContent: false, // 是否需要去editor那里去html数据
+      faContent: '',
       articleMsg: {
         blogId: this.$store.state.user.blogId,
         articleId: this.$route.params.id,
@@ -181,6 +184,7 @@ export default {
             }
             this.commentsPaPaMsg = this.commentsPaPaMsg.concat(paC.data)
             // console.log(this.commentsPaPaMsg, 'this.commentsPaPaMsg')
+            this.commentsPaPaMsg.reverse()
           }
         })
         // console.log(this.articleMsg, 'this.articleMsg')
@@ -206,6 +210,18 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    '$store.state.user.hasLogin': {
+      handler (val) {
+        this.visitor = !val
+      },
+      immediate: true
+    },
+    '$store.state.user.isBlogger': {
+      handler (val) {
+        this.isBlogger = val
+      },
+      immediate: true
     }
   },
   computed: {},
@@ -214,6 +230,8 @@ export default {
   methods: {
     submitPaCom () {
       // 根据
+      if (!this.faContent) return
+      this.faComment.content = this.faContent
       this.faComment.articleId = this.$route.params.articleId
       this.faComment.time = parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}')
       this.faComment.userId = this.$store.state.user.userId
@@ -224,7 +242,9 @@ export default {
         this.faComment.commentId = res.data.commentId
         // console.log(res, 'commentRes')
         this.commentsPaPaMsg.unshift(this.faComment)
-        this.insertPaData = deepClone(this.faComment) // 最好对象的复制都用深克隆
+        // this.insertPaData = deepClone(this.faComment) // 最好对象的复制都用深克隆
+      }).then(res => {
+        this.faContent = ''
       })
     },
     apply () {
@@ -278,7 +298,7 @@ export default {
 .detailBlogs {
   width: 50%;
   margin: 0 auto;
-  margin-top: 50px;
+  margin-top: 70px;
   .navbar {
     top: 55px;
   }
@@ -330,7 +350,7 @@ export default {
         right: 0;
         padding: 1em 2.004em;
         font-size: 15px;
-        background: #a8a6a1;
+        background: color(primary);
         color: white;
         text-align: center;
         cursor: pointer;
@@ -350,6 +370,12 @@ export default {
     .pre {
       .icon {
         transform: rotate(180deg);
+      }
+    }
+    .pre:hover,.next:hover {
+      color: color(primary);
+      .svg-icon {
+        fill: color(primary);
       }
     }
   }

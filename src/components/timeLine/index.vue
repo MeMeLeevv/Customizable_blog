@@ -72,9 +72,10 @@ export default {
 <style lang="scss">
 .el-timeline-item__content {
   display: flex;
+  flex-wrap: wrap;
   .el-card {
     width: 30%;
-    margin: 0 10px;
+    margin: 10px;
     cursor: pointer;
     .el-card__body {
       padding: 0 10px;

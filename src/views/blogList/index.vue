@@ -1,6 +1,6 @@
 <template>
   <div class="blogList">
-    <div class="control-button-wrapper">
+    <div v-if="isBlogger" class="control-button-wrapper">
       <div class="iconBar">
         <button class="editbtn" @click.stop="goBlankEditBlog">新建文章</button>
       </div>
@@ -193,6 +193,7 @@ export default {
   },
   data () {
     return {
+      isBlogger: false,
       layoutOptions: [
         {
           value: '1',
@@ -265,6 +266,17 @@ export default {
     }
   },
   watch: {
+    '$store.state.user.isBlogger': {
+      handler (val) {
+        this.isBlogger = val
+      },
+      immediate: true
+    },
+    '$store.state.blog.fullPage': {
+      handler (val) {
+        this.$emit('refreshBlogList')
+      }
+    },
     blogListSetting: {
       handler: function (newV, oldV) {
         this.$store.dispatch('blog/setBlogListSetting', this.blogListSetting)
@@ -382,9 +394,9 @@ export default {
             ...this.articleMaxH
           ) +
             this.marginBottom +
-            180 * 2 +
+            120 * 2 +
             6}px`
-        // // console.log(this.articleH, 'this.articleH')
+        // console.log(this.articleH, 'this.articleH')
         // // console.log(this.articleMaxH, 'MaxH')
         // // console.log(textH, 'textH') // 当articleH的元素数量等于article的数量时表示全部加载完毕，开始根据columns来分列取得每列最大的数作为container的高度
         // // console.log(this.articleH, 'hh') // 当articleH的元素数量等于article的数量时表示全部加载完毕，开始根据columns来分列取得每列最大的数作为container的高度
@@ -619,10 +631,11 @@ export default {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: flex-start;
     .blog-grid-row--container {
       display: flex;
       margin-bottom: 50px;
+      margin-left: 15px;
       .blog-grid-row--img {
         overflow: hidden;
         display: flex;
