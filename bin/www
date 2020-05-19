@@ -7,26 +7,84 @@
 var app = require('../app');// 引入我们上面导出的app实例
 var debug = require('debug')('test-blog:server'); // 引入debug模块，打印调试日志
 var http = require('http');
-
+var dbFunc = require('../routes/dbFuc')
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '3000'); //设置端口号
 app.set('port', port);
-console.log('port at :'+port)
+console.log('port at :' + port)
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+// var server = http.createServer(app);
 
+var server = app.listen(port);
+var io = require('socket.io').listen(server);
+var interval;
+io.sockets.on('connection', (socket) => {
+  socket.on('login', (data) => {
+    interval = setInterval(() => {
+      findNotices(data.blogId).then(res => {
+        socket.emit('getNotice', {
+          msg: res.data,
+          code: 200
+        });
+      })
+    }, 1000);
+  })
+  socket.on('logout', (data)=> {
+    clearInterval(interval)
+  })
+});
+
+function findNotices(blogId) {
+  var findData = {
+    collectName: 'noticeDatas',
+    condition: { whatReceiveId: blogId } // 按userId即id去查询
+  }
+
+  return dbFunc.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+    // 存在此用户，检测密码
+    return ress.length === 0 ? ({
+      code: 200,
+      data: [],
+      msg: '暂无notice'
+
+    }) : ({
+      code: 200,
+      data: ress,
+      msg: '获取notice数据成功!'
+
+    })
+  })
+}
+
+/* var io =  require('socket.io')(server)
+var broadcast = require('./broadcast')
+var clients = {}
+var count = 0;
+io.on('connection',(socket)=>{
+    socket.name = ++count;
+    clients[socket.name] = socket
+    
+    socket.on('disconnect',()=>{
+        delete clients[socket.name]     //断开链接
+    })
+})
+
+broadcast.on('hahaha',function(message){    //将服务端的信息分发给各个客户端
+  for(var name in clients){
+      clients[name].send(message)
+  }
+}) */
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port); // 启动工程并监听3000端口，成功后打印 Express server listening on port 3000。
 server.on('error', onError);
 server.on('listening', onListening);
 

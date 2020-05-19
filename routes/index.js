@@ -61,6 +61,22 @@ var _ = require('lodash');
 module.exports = function (app, gfs, upload, dbFun) {
   // @route GET /
   // @desc Loads form
+/*   var http = require('http').Server(app);
+  var io = require('socket.io')(http);
+
+  io.on('connection',(socket)=>{
+    console.log('ws connect!!!!')
+    socket.on('login', () => {
+      socket.emit('getMsg', {
+        msg: `你好朋友`,
+        code: 200
+      }); 
+      });   
+    socket.on('disconnect',()=>{
+      console.log('ws disConnect!!!!')
+    })
+}) */
+
   app.post('/', (req, res) => {
     var sess = req.session;
 
@@ -107,11 +123,16 @@ module.exports = function (app, gfs, upload, dbFun) {
           bloggerId: userId,
           blogId: blogId,
           UIModuleIdArr: [], // 可以考虑加个分类所属，效率查找 [{classify: String,id: String}]
-          articleIdArr: [],
-          likedIdArr: [],
-          starIdArr: [], //收藏
-          classifyObj: [],
-          socialLink: []
+          tapsArr: [],
+          socialLink: [],
+          fontStyle: '',
+          theme: '#bbd3f9',
+          live2d: {
+            show: false,
+            msgs: [],
+            chats: [],
+            showModel: 'bilibili_1'
+          }
         }
       ]
     }
@@ -197,6 +218,74 @@ module.exports = function (app, gfs, upload, dbFun) {
     })
   })
 
+  // 获取blog信息
+  app.get('/getBlogSetting', (req, res) => { // 在这里的请求的session每次都不一样
+    //首先先查找是否有此账户，有则直接登陆
+    //没有则跳转到注册页面
+    var body = req.query // 路由是key-value形式传参； params是像router /api/:id，获取id直接params.id
+    let findData = {
+      collectName: 'blogDatas',
+      condition: { blogId: body.blogId } // 按userId即id去查询
+    }
+    dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+      // 存在此用户，检测密码
+      if (ress.length === 0) {
+        return res.status(200).send({
+          code: 0,
+          data: [],
+          msg: 'blogSetting数据不存在！'
+
+        })
+      } else {
+        res.status(200).send({
+          code: 200,
+          data: ress[0],
+          msg: '获取blogSetting数据成功!'
+
+        })
+      }
+    }).catch(err => {
+      res.status(200).send({
+        code: 0,
+        data: {
+          data: err,
+        },
+        msg: '查询blogSetting数据失败！'
+
+      })
+    })
+  })
+
+  // 更新用户数据
+  app.post('/blogSetting/update', (req, res) => {
+
+    let updateArticleData = {
+      collectName: 'blogDatas',
+      condition: { blogId: req.body.blogId },
+      updata: req.body
+    }
+
+
+    dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+      // console.log(ress, 'ress!!!!!!!!!!!!')
+
+      if (ress) {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '更新blogSetting成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '更新blogSetting失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
+
 
   // 获取登陆者信息
   app.get('/getUserInfo', (req, res) => { // 在这里的请求的session每次都不一样
@@ -212,8 +301,7 @@ module.exports = function (app, gfs, upload, dbFun) {
       if (ress.length === 0) {
         return res.status(200).send({
           code: 0,
-          data: {
-          },
+          data: '',
           msg: '用户不存在，请注册！'
 
         })
@@ -236,6 +324,74 @@ module.exports = function (app, gfs, upload, dbFun) {
       })
     })
   })
+
+  // 获取登陆者信息
+  app.get('/getInfoByBlogId', (req, res) => { // 在这里的请求的session每次都不一样
+    //首先先查找是否有此账户，有则直接登陆
+    //没有则跳转到注册页面
+    var body = req.query // 路由是key-value形式传参； params是像router /api/:id，获取id直接params.id
+    let findData = {
+      collectName: 'userDatas',
+      condition: { blogId: body.blogId } // 按userId即id去查询
+    }
+    dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+      // 存在此用户，检测密码
+      if (ress.length === 0) {
+        return res.status(200).send({
+          code: 0,
+          data: '',
+          msg: '用户不存在！'
+
+        })
+      } else {
+        res.status(200).send({
+          code: 200,
+          data: ress[0],
+          msg: '通过blogId获取用户数据成功!'
+
+        })
+      }
+    }).catch(err => {
+      res.status(200).send({
+        code: 0,
+        data: {
+          data: err,
+        },
+        msg: '查询数据失败！'
+
+      })
+    })
+  })
+
+    // 更新用户数据
+    app.post('/userInfo/update', (req, res) => {
+
+      let updateArticleData = {
+        collectName: 'userDatas',
+        condition: { userId: req.body.userId },
+        updata: req.body
+      }
+  
+  
+      dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+        console.log(ress, 'ress!!!!!!!!!!!!')
+  
+        if (ress) {
+          res.status(200).send({
+            code: 200,
+            data: ress,
+            msg: '更新用户数据成功'
+          })
+        } else {
+          res.status(200).send({
+            code: 100,
+            data: ress,
+            msg: '更新用户数据失败，请重试！'
+          })
+        }
+        // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+      })
+    })
 
 
   /* GET logout page. */
@@ -263,7 +419,7 @@ module.exports = function (app, gfs, upload, dbFun) {
     //res.redirect('/');//继续回到根目录
   });
 
-  
+
   // 获取文章信息
   app.get('/article/list', (req, res) => { // 在这里的请求的session每次都不一样
     //首先先查找是否有此账户，有则直接登陆
@@ -277,8 +433,7 @@ module.exports = function (app, gfs, upload, dbFun) {
       if (ress.length === 0) {
         return res.status(200).send({
           code: 200,
-          data: {
-          },
+          data: [],
           msg: '暂无文章数据'
 
         })
@@ -302,6 +457,42 @@ module.exports = function (app, gfs, upload, dbFun) {
     })
   })
 
+    // 获取文章信息
+    app.get('/article/detail', (req, res) => { // 在这里的请求的session每次都不一样
+      //首先先查找是否有此账户，有则直接登陆
+      //没有则跳转到注册页面
+      let findData = {
+        collectName: 'articleDatas',
+        condition: { articleId: req.query.articleId } // 按userId即id去查询
+      }
+      dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+        // 存在此用户，检测密码
+        if (ress.length === 0) {
+          return res.status(200).send({
+            code: 200,
+            data: [],
+            msg: '暂无文章数据'
+  
+          })
+        } else {
+          res.status(200).send({
+            code: 200,
+            data: ress,
+            msg: '获取该文章数据成功!'
+  
+          })
+        }
+      }).catch(err => {
+        res.status(200).send({
+          code: 0,
+          data: {
+            data: err,
+          },
+          msg: '查询数据失败！'
+  
+        })
+      })
+    })
 
   // 插入新的文章数据
   app.post('/article/create', (req, res) => {
@@ -320,7 +511,8 @@ module.exports = function (app, gfs, upload, dbFun) {
           commentValue: '1',
           categoryValue: [],
           statusValue: '1', // 是发布还是为草稿
-          content: ''
+          content: '',
+          starIdArr: []
         }
       ]
     }
@@ -354,8 +546,8 @@ module.exports = function (app, gfs, upload, dbFun) {
 
 
     dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
-    console.log(ress, 'ress!!!!!!!!!!!!')
-      
+      console.log(ress, 'ress!!!!!!!!!!!!')
+
       if (ress) {
         res.status(200).send({
           code: 200,
@@ -373,65 +565,235 @@ module.exports = function (app, gfs, upload, dbFun) {
     })
   })
 
-    // 插入新的父级数据
-    app.post('/comment/createPa', (req, res) => {
-      req.body.commentId = shortid.generate()
-      let insertCommentData = {
-        collectName: 'paCommentDatas',
-        data: [
-          req.body
-        ]
+    // 获取通知信息
+    app.get('/notice/list', (req, res) => { // 在这里的请求的session每次都不一样
+      //首先先查找是否有此账户，有则直接登陆
+      //没有则跳转到注册页面
+      let findData = {
+        collectName: 'noticeDatas',
+        condition: { blogId: req.query.blogId } // 按userId即id去查询
       }
-      console.log(req.body, 'req.body!!!!!!!!')
-  
-      dbFun.insertdbData([insertCommentData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
-        if (Array.isArray(ress)) {
-          res.status(200).send({
+      dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+        // 存在此用户，检测密码
+        if (ress.length === 0) {
+          return res.status(200).send({
             code: 200,
-            data: ress[0],
-            msg: '发表评论成功'
+            data: [],
+            msg: '暂无通知数据'
+  
           })
         } else {
           res.status(200).send({
-            code: 100,
-            data: ress,
-            msg: '发表评论失败，请重试！'
-          })
-        }
-        // console.log(ress, 'register get data!!!!!!!!!!!!!!')
-      })
-    })
-
-    // 插入新的子级数据
-    app.post('/comment/createSon', (req, res) => {
-      req.body.commentId = shortid.generate()
-      let insertCommentData = {
-        collectName: 'sonCommentDatas',
-        data: [
-          req.body
-        ]
-      }
-      console.log(req.body, 'req.body!!!!!!!!')
-  
-      dbFun.insertdbData([insertCommentData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
-        if (Array.isArray(ress)) {
-          res.status(200).send({
             code: 200,
-            data: ress[0],
-            msg: '发表评论成功'
-          })
-        } else {
-          res.status(200).send({
-            code: 100,
             data: ress,
-            msg: '发表评论失败，请重试！'
+            msg: '获取通知数据成功!'
+  
           })
         }
-        // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+      }).catch(err => {
+        res.status(200).send({
+          code: 0,
+          data: {
+            data: err,
+          },
+          msg: '查询通知数据失败！'
+  
+        })
       })
     })
+  
+// 更新通知数据
+app.post('/notice/update', (req, res) => {
 
-    
+  let updateArticleData = {
+    collectName: 'noticeDatas',
+    condition: { _id: req.body._id },
+    updata: req.body
+  }
+
+
+  dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+    console.log(ress, 'ress!!!!!!!!!!!!')
+
+    if (ress) {
+      res.status(200).send({
+        code: 200,
+        data: ress,
+        msg: '更新文章成功'
+      })
+    } else {
+      res.status(200).send({
+        code: 100,
+        data: ress,
+        msg: '更新文章失败，请重试！'
+      })
+    }
+    // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+  })
+})
+
+// 插入新的通知数据
+app.post('/notice/create', (req, res) => {
+
+  let insertArticleData = {
+    collectName: 'noticeDatas',
+    data: [
+      req.body
+    ]
+  }
+
+  dbFun.insertdbData([insertArticleData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+    if (Array.isArray(ress)) {
+      res.status(200).send({
+        code: 200,
+        data: ress[0],
+        msg: '创建通知成功'
+      })
+    } else {
+      res.status(200).send({
+        code: 100,
+        data: ress,
+        msg: '创建通知失败，请重试！'
+      })
+    }
+    // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+  })
+})
+
+  
+  // 获取父级评论信息
+  app.get('/paComment/list', (req, res) => { // 在这里的请求的session每次都不一样
+    //首先先查找是否有此账户，有则直接登陆
+    //没有则跳转到注册页面
+    let findData = {
+      collectName: 'paCommentDatas',
+      condition: { articleId: req.query.articleId } // 按userId即id去查询
+    }
+    dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+      // 存在此用户，检测密码
+      if (ress.length === 0) {
+        return res.status(200).send({
+          code: 200,
+          data: [],
+          msg: '暂无评论数据'
+
+        })
+      } else {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '获取评论数据成功!'
+
+        })
+      }
+    }).catch(err => {
+      res.status(200).send({
+        code: 0,
+        data: {
+          data: err,
+        },
+        msg: '查询评论数据失败！'
+
+      })
+    })
+  })
+
+  // 获取父级评论信息
+  app.get('/sonComment/list', (req, res) => { // 在这里的请求的session每次都不一样
+    //首先先查找是否有此账户，有则直接登陆
+    //没有则跳转到注册页面
+      console.log(req.query.PaPaCommentId, 'req.query.PaPaCommentId')
+      let findData = {
+      collectName: 'sonCommentDatas',
+      condition: { PaPaCommentId: req.query.PaPaCommentId } // 按userId即id去查询
+    }
+    dbFun.finddbData(findData).then(ress => { //{ collectName：xxx, condition:xxx } //先查询数据
+      // 存在此用户，检测密码
+      if (ress.length === 0) {
+        return res.status(200).send({
+          code: 200,
+          data: [],
+          msg: '暂无子级评论数据'
+
+        })
+      } else {
+        res.status(200).send({
+          code: 200,
+          data: ress,
+          msg: '获取子级评论数据成功!'
+        })
+      }
+    }).catch(err => {
+      res.status(200).send({
+        code: 0,
+        data: {
+          data: err,
+        },
+        msg: '查询子级评论数据失败！'
+
+      })
+    })
+  })
+
+  // 插入新的父级数据
+  app.post('/comment/createPa', (req, res) => {
+    req.body.commentId = shortid.generate()
+    let insertCommentData = {
+      collectName: 'paCommentDatas',
+      data: [
+        req.body
+      ]
+    }
+    console.log(req.body, 'req.body!!!!!!!!')
+
+    dbFun.insertdbData([insertCommentData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+      if (Array.isArray(ress)) {
+        res.status(200).send({
+          code: 200,
+          data: ress[0],
+          msg: '发表评论成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '发表评论失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
+
+  // 插入新的子级数据
+  app.post('/comment/createSon', (req, res) => {
+    req.body.commentId = shortid.generate()
+    let insertCommentData = {
+      collectName: 'sonCommentDatas',
+      data: [
+        req.body
+      ]
+    }
+    console.log(req.body, 'req.body!!!!!!!!')
+
+    dbFun.insertdbData([insertCommentData]).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
+      if (Array.isArray(ress)) {
+        res.status(200).send({
+          code: 200,
+          data: ress[0],
+          msg: '发表评论成功'
+        })
+      } else {
+        res.status(200).send({
+          code: 100,
+          data: ress,
+          msg: '发表评论失败，请重试！'
+        })
+      }
+      // console.log(ress, 'register get data!!!!!!!!!!!!!!')
+    })
+  })
+
+
   // 更新文章数据
   app.post('/comment/updatePa', (req, res) => {
 
@@ -443,8 +805,8 @@ module.exports = function (app, gfs, upload, dbFun) {
 
 
     dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
-    console.log(ress, 'ress!!!!!!!!!!!!')
-      
+      console.log(ress, 'ress!!!!!!!!!!!!')
+
       if (ress) {
         res.status(200).send({
           code: 200,
@@ -462,7 +824,7 @@ module.exports = function (app, gfs, upload, dbFun) {
     })
   })
 
-  // 更新文章数据
+  // 更新子评论数据
   app.post('/comment/updateSon', (req, res) => {
 
     let updateArticleData = {
@@ -473,8 +835,8 @@ module.exports = function (app, gfs, upload, dbFun) {
 
 
     dbFun.findOneAndUpdate(updateArticleData).then(ress => { //ress范回对象数组这里还需要状态区分，如果是空对象status就需要返回其他error状态
-    console.log(ress, 'ress!!!!!!!!!!!!')
-      
+      console.log(ress, 'ress!!!!!!!!!!!!')
+
       if (ress) {
         res.status(200).send({
           code: 200,

@@ -24,11 +24,16 @@ const initSchema = async () => {
     bloggerId: { type: String, required: true },
     blogId: { type: String, required: true },
     UIModuleIdArr: Array, // 可以考虑加个分类所属，效率查找 [{classify: String,id: String}]
-    articleIdArr: Array,
-    likedIdArr: Array,
-    starIdArr: Array, //收藏
-    classifyObj: Array, // [{id: String,name: String}],
-    socialLink: Array
+    tagsArr: Array, // [name: String],
+    socialLink: Array,
+    fontStyle: String,
+    theme: String,
+    live2d: {
+      show: Boolean,
+      msgs: Array,
+      chats: Array,
+      showModel: String
+    }
   }, { collection: 'blogDatas' })/* 设定collection的名字，否则数据库会自动帮你的名字复数 */
 
 
@@ -46,13 +51,14 @@ const initSchema = async () => {
     categoryValue: Array,
     statusValue: String, // 是发布还是为草稿
     content: String,
-    cover: String
+    cover: String,
+    starIdArr: Array, //收藏该文章的用户id
   }, { collection: 'articleDatas' })/* 设定collection的名字，否则数据库会自动帮你的名字复数 */
 
   // 父级评论信息
   var paCommentDatas // model实例承载者！！！！！！！这个对应collectName，
   var paCommentDataschema = new Schema({ // 制定lessonInfo的数据规则
-    articleID: { type: String, required: true },
+    articleId: { type: String, required: true },
     commentId: String,
     content: String,
     time: String,
@@ -86,6 +92,20 @@ const initSchema = async () => {
     avatar: String
   }, { collection: 'sonCommentDatas' })/* 设定collection的名字，否则数据库会自动帮你的名字复数 */
 
+  // 通知信息 // 模仿youtube的通知信息 （首页logo）已读未读红点+icon+commentContent+cover+time
+  var noticeDatas // model实例承载者！！！！！！！这个对应collectName，
+  var noticeDataschema = new Schema({ // 制定lessonInfo的数据规则
+    hasRead: { type: Boolean, required: true },
+    whoDidId: String, // 该发起人
+    whatReceiveId: String, // 该博主
+    time: String,
+    content: String, // 被操作的评论
+    action: Number, // 1-点赞、2-举报、3-评论
+    articleId: String, // 被操作的文章
+    cover: String, // 被操作的文章图片
+    new: Boolean // 是否是新增的，红点提示
+  }, { collection: 'noticeDatas' })/* 设定collection的名字，否则数据库会自动帮你的名字复数 */
+
 
 
 
@@ -95,19 +115,22 @@ const initSchema = async () => {
     articleDatas = await mongoose.model('articleDatas')
     paCommentDatas = await mongoose.model('paCommentDatas')
     sonCommentDatas = await mongoose.model('sonCommentDatas')
+    noticeDatas = await mongoose.model('noticeDatas')
   } catch (err) {
     userDatas = await mongoose.model('userDatas', userDataschema) // 第一次渲染模型需要初始化规则
-    blogDatas = await mongoose.model('blogDatas', articleDataschema) // 第一次渲染模型需要初始化规则
+    blogDatas = await mongoose.model('blogDatas', blogDataschema) // 第一次渲染模型需要初始化规则
     articleDatas = await mongoose.model('articleDatas', articleDataschema) // 第一次渲染模型需要初始化规则
     paCommentDatas = await mongoose.model('paCommentDatas', paCommentDataschema) // 第一次渲染模型需要初始化规则
     sonCommentDatas = await mongoose.model('sonCommentDatas', sonCommentDataschema) // 第一次渲染模型需要初始化规则
+    noticeDatas = await mongoose.model('noticeDatas', noticeDataschema) // 第一次渲染模型需要初始化规则
   }
   return {
     userDatas,
     blogDatas,
     articleDatas,
     paCommentDatas,
-    sonCommentDatas
+    sonCommentDatas,
+    noticeDatas
   }
 
   /*

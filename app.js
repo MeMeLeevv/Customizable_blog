@@ -15,6 +15,21 @@ var routers = require('./routes/index');
 
 var app = express(); // 生成一个express实例 app
 
+app.all('*',function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
+  res.header('Access-Control-Allow-Headers', 'X-Token, Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Credentials','true');   // 新增
+  if (req.method == 'OPTIONS') {
+    res.send(200); /*让options请求快速返回*/
+  }
+  else {
+    next();
+  }
+});
+
+
+
 var gfs;
 const mongoURI = 'mongodb://127.0.0.1:27017/customizable_blog'
 
@@ -27,7 +42,6 @@ app.use(express.json()); // 加载解析json的中间件。
 app.use(express.urlencoded({ extended: false })); // 加载解析urlencoded请求体的中间件
 app.use(cookieParser()); // 加载解析cookie的中间件。
 app.use(express.static(path.join(__dirname, 'public'))); // 设置public文件夹为存放静态文件的目录。
-
 
 
 /* 
