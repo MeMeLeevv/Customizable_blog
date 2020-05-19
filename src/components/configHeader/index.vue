@@ -1,6 +1,6 @@
 <template>
   <div class="configHeader">
-    <div class="back" @click="$router.push(backRouter)">
+    <div class="back" @click="back">
       <span class="svg">
         <svg-icon class="arrow" icon-class="arrow" />
         <svg-icon class="minus" icon-class="minus" />
@@ -24,7 +24,12 @@ export default {
   created () {},
   computed: {},
   mounted () {},
-  methods: {},
+  methods: {
+    back () {
+      this.$store.dispatch('user/setConfigNow', false)
+      this.$router.push(this.backRouter)
+    }
+  },
   components: {}
 }
 </script>

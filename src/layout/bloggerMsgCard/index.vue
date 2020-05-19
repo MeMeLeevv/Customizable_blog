@@ -100,7 +100,8 @@
       <div class="detailTags">
         <h5 class="title">标签</h5>
         <div class="wrap">
-          <span v-for="(item, index) in blogMsg.tags" :key="index" class="item">{{item}}</span>
+          <span v-if="blogMsg.tagsArr.length === 0">暂无标签</span>
+          <span v-else v-for="(item, index) in blogMsg.tagsArr" :key="index" class="item">{{item}}</span>
         </div>
       </div>
     </div>
@@ -119,7 +120,7 @@ import { Message, MessageBox } from 'element-ui'
 import { deepClone } from '@/utils/index'
 import timeLine from '@/components/timeLine'
 import { getInfoByBlogId, updateUserInfo } from '@/api/user'
-import { getBlogSetting } from '@/api/blog'
+import { getBlogSetting, updateBlogSetting } from '@/api/blog'
 import uploadImg from '@/components/uploadImg/index.vue'
 export default {
   name: 'bloggerMsgCard',
@@ -145,19 +146,11 @@ export default {
         desc: ''
       },
       blogMsg: {
-        socialLink: [
-          'https://www.youtube.com/',
-          'https://www.bilibili.com/',
-          'https://github.com/'
-        ],
-        tags: ['html5', 'css3', 'js', 'node.js', 'vue.js', 'mongodb']
+        socialLink: [],
+        tagsArr: []
       },
       blogForm: {
-        socialLink: [
-          'https://www.youtube.com/',
-          'https://www.bilibili.com/',
-          'https://github.com/'
-        ]
+        socialLink: []
       },
       addLinkValue: '',
       linkTip: false,
@@ -176,7 +169,9 @@ export default {
           }
         })
         getBlogSetting(val).then(res => {
-
+          this.blogMsg = res.data
+          this.blogForm.socialLink = deepClone(this.blogMsg.socialLink)
+          this.$store.dispatch('blog/setBlogSetting', res.data)
         })
       },
       immediate: true
@@ -318,6 +313,7 @@ export default {
         this.addLinkValue = ''
         this.pickLinkLogo = 'dotCircle'
         // 如果確定在edit按鈕摁下去時將所有初始值都存到store中，只要放棄編輯就一切恢復原值，那麼是不是每個編輯區域也就不需要分展示值和form值了？
+        updateBlogSetting({ blogId: this.$store.state.user.blogId, socialLink: this.blogForm.socialLink })
       }
     },
     addLinkTest (e) {

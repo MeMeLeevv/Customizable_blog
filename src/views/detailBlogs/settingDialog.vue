@@ -14,7 +14,7 @@
             <div class="coverWrap">
               <div class="title">封面图片</div>
               <div class="coverUpload">
-                <uploadImg :fileList="fileList"></uploadImg>
+                <uploadImg :small="false" :fileList="fileList"></uploadImg>
               </div>
             </div>
             <div class="field_rhs">
@@ -313,6 +313,9 @@ export default {
             new Date(),
             '{y}/{m}/{d} {h}:{i}:{s}'
           )
+          /* tap如何处理？ 每个标签都要有数字标出（articleId号）然后每个文章apply的时候用{key（标签值：文章id},
+          然后循环tap标签，如果循环到有值！== -1 ，如果key === 此tap的值
+          */
           this.$emit('update:articleMsg', this.detailarticleMsg)
           this.$emit('apply')
         } else {

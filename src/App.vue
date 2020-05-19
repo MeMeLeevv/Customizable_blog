@@ -13,6 +13,7 @@
 
 <script>
 import { asyncRoutes } from '@/router'
+
 // import { Message } from 'element-ui'
 import live2d from '@/components/live2d/live2d'
 import { getInfoByBlogId } from '@/api/user'
@@ -57,7 +58,7 @@ export default {
     this.$nextTick(function () {})
   },
   watch: {
-    '$store.state.blog.theme': {
+    '$store.state.blog.blogSetting.theme': {
       handler (newV) {
         document.body.style.setProperty('--color-primary', newV)
       },

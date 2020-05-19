@@ -2,7 +2,9 @@
 // 当前博客应该展示的信息，即保存的是非登录用户的信息，只做读取，不做修改
 const state = {
   userInfo: {}, // 已存在blogId和userId
-  blogSetting: {},
+  blogSetting: {
+    theme: '#bbd3f9'
+  },
   blogListSetting: {
     layout: '4', // 1为单列
     align: '2',
@@ -11,7 +13,6 @@ const state = {
   },
   noticeArr: [],
   hasNewMsg: false,
-  theme: '#bbd3f9',
   fullPage: false
 }
 
@@ -20,7 +21,7 @@ const mutations = {
     state.fullPage = value
   },
   SETTHEME: (state, value) => {
-    state.theme = value
+    state.blogSetting.theme = value
   },
   SETNEWMSG: (state, value) => {
     state.hasNewMsg = value

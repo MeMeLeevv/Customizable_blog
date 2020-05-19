@@ -1,7 +1,8 @@
 <template>
   <div class="Layout">
     <transition name="left-fade">
-      <router-view class="sidebar" />
+      <router-view v-if="!configNow"  class="sidebar" />
+      <router-view v-else class="sidebar" name="second" />
     </transition>
     <div class="main" ref="main">
       <transition v-if="isBlogger" name="slide-fade">
@@ -23,13 +24,20 @@ export default {
   data () {
     return {
       triangleShow: false,
-      isBlogger: false
+      isBlogger: false,
+      configNow: false
     }
   },
   watch: {
     '$store.state.user.isBlogger': {
       handler (val) {
         this.isBlogger = val
+      },
+      immediate: true
+    },
+    '$store.state.user.configNow': {
+      handler (val) {
+        this.configNow = val
       },
       immediate: true
     }

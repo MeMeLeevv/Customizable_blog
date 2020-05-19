@@ -23,3 +23,11 @@ export function login (data) {
     data
   })
 }
+
+export function updateBlogSetting (data) {
+  return request({
+    url: '/blogSetting/update',
+    method: 'post',
+    data
+  })
+}

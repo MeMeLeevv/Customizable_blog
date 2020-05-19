@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     defaultTheme () {
-      return this.$store.state.blog.theme
+      return this.$store.state.blog.blogSetting.theme
     }
   },
   watch: {

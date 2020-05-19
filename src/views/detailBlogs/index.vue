@@ -169,27 +169,6 @@ export default {
     }
   },
   created () {
-    fetchArticle(this.$route.params.articleId).then((res) => {
-      if (res.data.length === 0) { // 没有此文章，用户操作为新建，不需要初始化
-      } else { // 初始化文章
-        this.articleMsg = Object.assign(this.articleMsg, res.data[0])
-        fetchPacomment(this.$route.params.articleId).then(paC => {
-          if (paC.data.length !== 0) {
-            for (let i = 0; i < paC.data.length; i++) {
-              fetchSoncomment(paC.data[i].commentId).then(sonC => {
-                if (sonC.data.length !== 0) {
-                  paC.data[i].commentsSonMsg = paC.data[i].commentsSonMsg.concat(sonC.data)
-                }
-              })
-            }
-            this.commentsPaPaMsg = this.commentsPaPaMsg.concat(paC.data)
-            // console.log(this.commentsPaPaMsg, 'this.commentsPaPaMsg')
-            this.commentsPaPaMsg.reverse()
-          }
-        })
-        // console.log(this.articleMsg, 'this.articleMsg')
-      }
-    })
 
     // // console.log(titleBlog.methods.getContent(), 'titleBlog')
     /* if (!this.$route.params.id) { // 如果id为空，则表示是进入一个空白编辑页面,新增文章数据插入数据库
@@ -199,6 +178,33 @@ export default {
     } */
   },
   watch: {
+    '$route.params.articleId': {
+      handler (newV, oldV) {
+        if (newV === oldV) return
+        fetchArticle(this.$route.params.articleId).then((res) => {
+          if (res.data.length === 0) { // 没有此文章，用户操作为新建，不需要初始化
+          } else { // 初始化文章
+            this.articleMsg = Object.assign(this.articleMsg, res.data[0])
+            fetchPacomment(this.$route.params.articleId).then(paC => {
+              if (paC.data.length !== 0) {
+                for (let i = 0; i < paC.data.length; i++) {
+                  fetchSoncomment(paC.data[i].commentId).then(sonC => {
+                    if (sonC.data.length !== 0) {
+                      paC.data[i].commentsSonMsg = paC.data[i].commentsSonMsg.concat(sonC.data)
+                    }
+                  })
+                }
+                this.commentsPaPaMsg = this.commentsPaPaMsg.concat(paC.data)
+                // console.log(this.commentsPaPaMsg, 'this.commentsPaPaMsg')
+                this.commentsPaPaMsg.reverse()
+              }
+            })
+            // console.log(this.articleMsg, 'this.articleMsg')
+          }
+        })
+      },
+      immediate: true
+    },
     commentsPaPaMsg: {
       handler (newV) {
         this.comNums = 0

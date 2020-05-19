@@ -8,10 +8,14 @@ const state = {
   name: '',
   avatar: '',
   desc: '',
-  isBlogger: false
+  isBlogger: false,
+  configNow: false // 当前用户是否处于config页面
 }
 
 const mutations = {
+  SET_CONFIGNOW: (state, configNow) => {
+    state.configNow = configNow
+  },
   SET_BLOGGER: (state, isBlogger) => {
     state.isBlogger = isBlogger
   },
@@ -36,6 +40,9 @@ const mutations = {
 }
 
 const actions = {
+  setConfigNow ({ commit }, value) {
+    commit('SET_CONFIGNOW', value)
+  },
   setAvatar ({ commit }, value) {
     commit('SET_AVATAR', value)
   },
