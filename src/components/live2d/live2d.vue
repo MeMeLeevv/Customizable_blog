@@ -1,11 +1,10 @@
 <template>
   <div
     :class="`model-container ${editState ? 'editState' : ''}`"
-    v-show="show"
     ref="live2d"
     @mouseenter=" (showDialog = true) && $store.state.app.isEditState && !editState && (showMap = true)"
     @mouseleave="hideMsg"
-    :style="`top: ${$store.state.live2d.top}px; left: ${$store.state.live2d.left}px;width: ${$store.state.live2d.width}px; height: ${$store.state.live2d.height}px`"
+    :style="`top: ${live2d.top}px; left: ${live2d.left}px;width: ${live2d.width}px; height: ${live2d.height}px`"
   >
     <div class="size" v-show="editState">
       <span title="拖动，释放鼠标以观察效果">
@@ -15,8 +14,8 @@
         <svg-icon class="done" icon-class="done" />
       </span>
     </div>
-    <div v-if="showMap">
-      <span class="editBtn" @click="($emit('update:editState', true)) && (showMap = false)">编辑看板娘</span>
+    <div v-if="showMap && blogger">
+      <span class="editBtn" @click.stop="($emit('update:editState', true)) && (showMap = false)">编辑看板娘</span>
     </div>
     <div
       v-if="!editState && showDialog"
@@ -24,15 +23,16 @@
       style="width: 200px; height: 100px"
     >{{message}}</div>
     <canvas
-      :width="$store.state.live2d.width"
-      :height="$store.state.live2d.height"
+      :width="live2d.width"
+      :height="live2d.height"
       id="live2d"
       @click="randomMsg()"
       class="live2d"
     ></canvas>
-    <div v-show="!editState" class="waifu-tool">
+    <div @click.stop v-show="!editState" class="waifu-tool">
       <span
         class="fui-home"
+        @click="goIndex"
         @mouseenter="message = '你要回去主页吗？'"
         @mouseleave="randomMsg"
         title="返回主页"
@@ -50,15 +50,14 @@
       <span class="fui-cross" @mouseenter="chat" @mouseleave="randomMsg" title="聊天">
         <svg-icon class="icon" icon-class="iconchat" />
       </span>
-      <span
+      <!-- <span
         class="fui-eye"
-        @click="show = !show"
         @mouseenter="message = '点了的话那我就只在屏幕外偷偷看着你了'"
         @mouseleave="randomMsg"
         title="关闭模型"
       >
-        <svg-icon class="icon" icon-class="icondelete" />
-      </span>
+        <span @click.stop="closeModel"><svg-icon class="icon" icon-class="icondelete" /></span>
+      </span> -->
     </div>
   </div>
   <!-- </div> -->
@@ -66,23 +65,50 @@
 
 <script>
 /* 在编辑状态下，一切处理都可以被保存，包括换装/位移 */
+// import { updateBlogSetting } from '@/api/blog'
 export default {
   props: {
     showModel: String,
+    live2d: Object,
     editState: Boolean // 此时是否为可编辑状态
   },
   data () {
     return {
       showMap: false,
-      show: true,
       showDialog: false,
-      message: ''
+      message: '',
+      firstLoad: true,
+      blogger: false
     }
   },
   created () {
-    this.message = this.$store.state.live2d.messages[0]
+    // console.log(this.blogSetting, 'blogSetting')
+    this.message = this.live2d.msgs[0]
   },
-  watch: {},
+  watch: {
+    live2d: {
+      handler: function (val) {
+        console.log(val, 'show')
+        if (this.firstLoad) {
+          this.$set(this.live2d, 'width', val.width)
+          this.$set(this.live2d, 'height', val.height)
+          this.$set(this.live2d, 'left', val.left)
+          this.$set(this.live2d, 'top', val.top)
+          this.$set(this.live2d, 'show', val.show)
+          this.$set(this.live2d, 'showModel', val.showModel)
+          this.firstLoad = false
+        }
+        this.$emit('update:live2d', val)
+      },
+      deep: true
+    },
+    '$store.state.user.isBlogger': { // 设置博主状态
+      handler (val) {
+        this.blogger = val
+      },
+      immediate: true
+    }
+  },
   components: {},
   computed: {},
   directives: {},
@@ -119,6 +145,7 @@ export default {
             const disY = (e.clientY - oriY)
 
             // 移动当前元素
+            console.log(this.$refs.live2d.style.width, 'this.$refs.live2d.style')
             let width = this.$refs.live2d.style.width.slice(0, -2) - 0
             let height = this.$refs.live2d.style.height.slice(0, -2) - 0
 
@@ -133,8 +160,8 @@ export default {
               height += Math.abs(disY)
             }
             // 右移变小为正，左移变大为负 // 上移变大位负，下移变小为正
-            this.$store.dispatch('live2d/setWidth', width)
-            this.$store.dispatch('live2d/setHeight', height)
+            this.live2d.width = width
+            this.live2d.height = height
           }
           document.onmouseup = e => {
             this.updateModel()
@@ -151,11 +178,12 @@ export default {
             const left = e.clientX - disX
             const top = e.clientY - disY
             // 移动当前元素
+            console.log(this.$refs.live2d, 'this.$refs.live2d')
             this.$refs.live2d.style.left = left + 'px'
             this.$refs.live2d.style.top = top + 'px'
             if (this.editState) {
-              this.$store.dispatch('live2d/setLeft', left)
-              this.$store.dispatch('live2d/setTop', top)
+              this.live2d.left = left
+              this.live2d.top = top
             }
           }
           document.onmouseup = e => {
@@ -169,6 +197,14 @@ export default {
     })
   },
   methods: {
+    goIndex () {
+      if (this.$route.fullPath === `/${this.$route.params.blogId}`) return
+      this.$router.push(`/${this.$route.params.blogId}`)
+    },
+    closeModel () {
+      this.live2d.show = false
+      console.log('close')
+    },
     hideMsg () {
       this.showDialog = false
       if (this.$store.state.app.isEditState && !this.editState) {
@@ -187,14 +223,14 @@ export default {
       return Math.floor(Math.random() * (max - min)) + min // 不含最大值，含最小值
     },
     randomMsg () {
-      const len = this.$store.state.live2d.messages.length
+      const len = this.live2d.msgs.length
       const number = this.getRandomInt(1, len)
-      this.message = this.$store.state.live2d.messages[number]
+      this.message = this.live2d.msgs[number]
     },
     chat () {
-      const len = this.$store.state.live2d.chats.length
+      const len = this.live2d.chats.length
       const number = this.getRandomInt(1, len)
-      this.message = this.$store.state.live2d.chats[number]
+      this.message = this.live2d.chats[number]
     }
   }
 }

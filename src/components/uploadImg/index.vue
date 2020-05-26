@@ -97,7 +97,7 @@ export default {
     @return void
     */
     beforeAvatarUpload (file, fileList) { /* 上传前 */
-      const isJPG = this.isImage(file.type)
+      /* const isJPG = this.isImage(file.type)
       const isLt2M = (file.size / 1024 / 200).toPrecision(3) < 1
       if (!isJPG) {
         this.$message.error('请上传图片格式的文件!')
@@ -106,7 +106,7 @@ export default {
       if (!isLt2M) {
         this.$message.error('上传头像图片大小不能超过 200k!')
         return false
-      }
+      } */
     },
     /*
     作用：判断图片格式
@@ -149,7 +149,7 @@ export default {
 .uploadImage
   .cover
     width: 250px
-    height: 250px
+    height: 200px
   .smallCover
     width: 80px
     height: 80px

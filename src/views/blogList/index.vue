@@ -1,8 +1,8 @@
 <template>
-  <div class="blogList">
+  <div class="blogList" ref="blogWrap">
     <div v-if="isBlogger" class="control-button-wrapper">
       <div class="iconBar">
-        <button class="editbtn" @click.stop="goBlankEditBlog">新建文章</button>
+        <button class="editbtn" id="addBtn" @click.stop="goBlankEditBlog">新建文章</button>
       </div>
       <div class="iconBar">
         <button class="btn" @click="$emit('update:showEditDialog', true)">
@@ -182,6 +182,7 @@
 </template>
 <script>
 import { createArticle } from '@/api/article'
+import { updateBlogSetting } from '@/api/blog'
 export default {
   name: 'blogList',
   props: {
@@ -258,10 +259,10 @@ export default {
       marginBottom: 0, // 每行article的marginBottom累加
       imgMaxH: '',
       blogListSetting: {
-        layout: this.$store.state.blog.blogListSetting.layout, // 1为单列
-        align: this.$store.state.blog.blogListSetting.align,
-        columns: this.$store.state.blog.blogListSetting.columns,
-        imgPlace: this.$store.state.blog.blogListSetting.imgPlace
+        layout: this.$store.state.blog.blogSetting.blogListSetting.layout, // 1为单列
+        align: this.$store.state.blog.blogSetting.blogListSetting.align,
+        columns: this.$store.state.blog.blogSetting.blogListSetting.columns,
+        imgPlace: this.$store.state.blog.blogSetting.blogListSetting.imgPlace
       }
     }
   },
@@ -279,7 +280,10 @@ export default {
     },
     blogListSetting: {
       handler: function (newV, oldV) {
-        this.$store.dispatch('blog/setBlogListSetting', this.blogListSetting)
+        // console.log(newV, 'blog')
+        updateBlogSetting({ blogId: this.$store.state.user.blogId, blogListSetting: newV }).then(res => {
+          this.$store.dispatch('blog/setBlogListSetting', newV)
+        })
       },
       deep: true
     },
@@ -298,6 +302,8 @@ export default {
     }
   },
   created () {
+    this.$store.dispatch('blog/setBlogFresh', true)
+    // console.log(this.$store.state.blog.scrollTop, 'this.$store.state.blog.scrollTop')
     /* 初始化时根据布局规定cover最大高度以及编辑dialog需要显示的条例 */
     const layout = this.blogListSetting.layout
     if (layout === '1') {
@@ -337,7 +343,9 @@ export default {
   },
   computed: {},
   mounted () {
-    this.$nextTick(function (params) {})
+    this.$nextTick(function (params) {
+      // this.$refs.blogWrap.scrollTop = this.$store.state.blog.scrollTop
+    })
   },
   methods: {
     goBlankEditBlog () {

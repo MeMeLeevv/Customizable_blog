@@ -1,11 +1,12 @@
 <template>
   <div id="app" :class="usingFontName">
     <live2d
-      v-if="closeModel && showLive && !hideModel"
+      v-if="live2d && live2d.show && showLive && !hideModel"
       :editState.sync="editState"
       @updateModel="updateModel"
-      :showModel="showModel"
+      :showModel="live2d.showModel"
       @changeLive2d="showlive2d"
+      v-bind:live2d.sync="live2d"
     ></live2d>
     <router-view v-if="isRouterAlive" />
   </div>
@@ -21,24 +22,23 @@ import { getInfoByBlogId } from '@/api/user'
 export default {
   name: 'App',
   provide () {
-    return {
-      reload: this.reload
-    }
+    return { reload: this.reload }
   },
   data () {
     return {
       isRouterAlive: true,
-      usingFontName: this.$store.state.app.fontFamily,
+      isBlogger: false,
+      live2d: {},
+      firstLoad: true,
+      usingFontName: this.$store.state.blog.blogSetting.fontStyle,
       hideModel: false,
       closeModel: this.$store.state.live2d.close,
       showLive: true,
       editState: false, // 模型是否处于编辑状态
-      showModel: this.$store.state.live2d.model, // 默认的模型
       models: [] // 可用模型
     }
   },
   created () {
-    // console.log(this.$route.params.blogId, 'blog')
     if (!this.$route.params.blogId) {
       // 刚开始加载 如果路由没有blogId，则默认赋值
       this.$router.push('/tCqtL_yo9')
@@ -55,16 +55,46 @@ export default {
       })
   },
   mounted () {
-    this.$nextTick(function () {})
+    window.addEventListener('scroll', this.appScroll, true)
+
+    this.$nextTick(function () {
+    })
   },
   watch: {
+    '$store.state.blog.blogSetting': {
+      handler: function (val) {
+        if (!val) return
+        this.blogSetting = val
+        this.live2d = val.live2d
+        this.$set(this.live2d, 'width', val.live2d.width)
+        this.$set(this.live2d, 'height', val.live2d.height)
+        this.$set(this.live2d, 'left', val.live2d.left)
+        this.$set(this.live2d, 'top', val.live2d.top)
+        this.$set(this.live2d, 'show', val.live2d.show)
+        this.$set(this.live2d, 'showModel', val.live2d.showModel)
+        this.firstLoad = false
+        // console.log('updateBlogger', val)
+        this.updateModel()
+      },
+      deep: true
+    },
+    live2d: {
+      handler: function (val) {
+        const blogSetting = this.$store.state.blog.blogSetting
+        blogSetting.live2d = val
+        this.$store.dispatch('blog/setBlogSetting', blogSetting)
+      },
+      immediate: true,
+      deep: true
+
+    },
     '$store.state.blog.blogSetting.theme': {
       handler (newV) {
         document.body.style.setProperty('--color-primary', newV)
       },
       immediate: true
     },
-    '$store.state.app.fontFamily' (newV, oldV) {
+    '$store.state.blog.blogSetting.fontStyle' (newV, oldV) {
       if (newV !== oldV) {
         this.usingFontName = newV
       }
@@ -76,7 +106,7 @@ export default {
         // const that = this
         if (to.params.blogId) {
         // 如果存在blogId ,则去获取
-          // console.log(to.params.blogId, '如果存在blogId, 则去获取')
+          // // console.log(to.params.blogId, '如果存在blogId, 则去获取')
           // getBlogSetting(to.params.blogId)
           getInfoByBlogId(to.params.blogId).then(res => {
           // that.$store.dispatch('blog/setUserInfo', res.data)
@@ -100,25 +130,19 @@ export default {
           })
           this.$router.push('/error/403')
         } */
-        if (this.to === '/config/Design/Cartoons') {
+        if (this.to.indexOf('/config/Design/Cartoons') !== -1) {
         // 在设置页面虽然能调用此组件地updateModel，但并没有产生更新，于是设置页面也插入live2d组件（操作直接作用于它），此时这个页面的live2d组件要隐藏
           this.hideModel = true
         } else {
           this.hideModel = false
-        // console.log(this.$store.getters.model, 'this.$store.state.live2d.model')
+        // // console.log(this.$store.getters.model, 'this.$store.state.live2d.model')
         }
       },
       immediate: true
     },
-    '$store.state.live2d.model': function (newV) {
-      this.showModel = newV
-    },
-    '$store.state.live2d.close': function (newV) {
-      this.closeModel = newV
-    },
     '$store.state.user.hasLogin': function (newV) {
       if (newV) {
-        console.log(asyncRoutes, 'asyncRoutes')
+        // console.log(asyncRoutes, 'asyncRoutes')
         this.$router.addRoutes(asyncRoutes)
       }
     },
@@ -144,12 +168,12 @@ export default {
     },
     showlive2d () {
       this.showLive = false
-      let index = this.models.indexOf(this.showModel)
+      let index = this.models.indexOf(this.blogSetting.live2d.showModel)
       if (index === this.models.length - 1) {
         // 切换时index + 1
         index = 0
       }
-      this.showModel = this.models[index + 1]
+      this.blogSetting.live2d.showModel = this.models[index + 1]
       setTimeout(() => {
         this.showLive = true
       }, 100)

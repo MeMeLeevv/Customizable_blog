@@ -7,7 +7,8 @@
     <transition name="slide-fade">
       <addComponents v-if="showAddComponents" @clickNewSection="clickNewSection" @closeAddComponents="showAddComponents = false"></addComponents>
     </transition>
-    <div id="showBlock"></div><!-- class不行？ id才能插入 -->
+    <!-- <div id="showBlock"></div>class不行？ id才能插入 -->
+    <headlines v-if="showHeadlines" v-bind:headlinesData.sync="headlinesData" @deleteHeadlines="deleteHeadlines" :which="1"></headlines>
     <blogList v-if="!hideBlogList" :blogData="blogData" :showEditDialog.sync="showEditDialog" @refreshBlogList="refreshBlogList"></blogList>
   </div>
 </template>
@@ -18,17 +19,23 @@ import editPlus from '@/components/editPlus'
 import addComponents from '@/components/addComponents'
 import headlines from '@/components/addComponents/headlines'
 import blogList from '@/views/blogList'
-import Vue from 'vue'
+// import Vue from 'vue'
+import { updateBlogSetting } from '@/api/blog'
 import { fetchList } from '@/api/article'
 export default {
   name: 'index',
   data () {
     return {
+      showHeadlines: this.$store.state.blog.showHeadlines,
       hideBlogList: false,
       headlinesComp: null,
       showEditPlus: false,
       showAddComponents: false,
       showEditDialog: false, // 是否显示bloglist的编辑对话框
+      headlinesData: {
+        bg: '',
+        content: ''
+      },
       blogData: [],
       headlines1: {
         id: '1',
@@ -56,19 +63,56 @@ export default {
     }
   },
   watch: {
+    '$store.state.blog.showHeadlines' (val) {
+      this.showHeadlines = val
+    },
+    headlinesData: { /* [{classify: headlines, id: 1, showWhich: 1, bg: '', content: ''}] */
+      handler (val) {
+        if (this.showHeadlines) {
+          const blogSetting = this.$store.state.blog.blogSetting
+          blogSetting.headlines = val
+          console.log(val, 'headlinesData')
+          updateBlogSetting({ blogId: this.$store.state.user.blogId, headlines: val }).then(res => {
+            this.$store.dispatch('blog/setBlogSetting', blogSetting)
+          })
+        }
+      },
+      deep: true
+    },
+    '$store.state.blog.blogSetting': { /* [{classify: headlines, id: 1, showWhich: 1, bg: '', content: ''}] */
+      handler (val) {
+        if (val.headlines.bg) {
+          this.headlinesData = val.headlines
+        }
+      },
+      deep: true
+    },
     '$route.params.blogId': {
       handler (newV) {
         fetchList({ blogId: newV }).then(res => {
-          this.blogData = res.data
-          for (let i = 0; i < res.data.length; i++) {
-            const content = res.data[i].content
+          this.blogData = res.data.filter(res => res.statusValue === '1')
+          for (let i = 0; i < this.blogData.length; i++) {
+            const content = this.blogData[i].content
             const start = content.search(/>/)
             const last = content.search(/<\/h1>/)
             this.blogData[i].title = content.slice(start + 1, last)
             // console.log(start, last, content)
           }
           // console.log(res, 'blogList res')
+        }).then(res => {
+          let taps = []
+          for (let i = 0; i < this.blogData.length; i++) {
+            taps = taps.concat(this.blogData[i].tapsArr)
+          }
+          const blogSetting = this.$store.state.blog.blogSetting
+          taps = new Set(taps)
+          const tapsA = [...taps] // 转成数组对象
+          blogSetting.tagsArr = tapsA
+          updateBlogSetting({ blogId: this.$store.state.user.blogId, tagsArr: tapsA })
+          console.log(taps, 'taps')
+          this.$store.dispatch('blog/setBlogSetting', blogSetting)
         })
+        // 判断headlines uiModule需不需要
       },
       immediate: true
     },
@@ -78,8 +122,30 @@ export default {
   },
   created () {},
   computed: {},
-  mounted () {},
+  mounted () {
+    this.$nextTick(function (params) {
+      // console.log(this.$route.params.blogId, 'blog')
+    })
+  },
   methods: {
+    deleteHeadlines () {
+      this.$confirm('此操作将删除该组件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.showHeadlines = false
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
     refreshBlogList () {
       this.hideBlogList = true
       setTimeout(() => {
@@ -87,15 +153,16 @@ export default {
       }, 100)
     },
     clickNewSection (belong, id) {
-      console.log(belong, id, 'sec')
+      // console.log(belong, id, 'sec')
       this.showAddComponents = false
       if (belong === 'headlines') {
-        this.insertHeadlines()
+        this.showHeadlines = true
       }
     },
     insertHeadlines () {
-      const HeadlinesClass = Vue.extend(headlines)
-      this.headlinesComp = new HeadlinesClass().$mount('#showBlock')
+      // this.showHeadlines = true
+      /* const HeadlinesClass = Vue.extend(headlines)
+      this.headlinesComp = new HeadlinesClass().$mount('#showBlock') */
     }
   },
   components: {

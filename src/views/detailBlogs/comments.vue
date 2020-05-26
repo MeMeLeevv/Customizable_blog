@@ -62,7 +62,6 @@
 </template>
 <script>
 import { createSoncomment, updatePacomment, updateSoncomment } from '@/api/comment'
-
 import Vue from 'vue'
 import replyTextarea from './replyTextarea.vue'
 import { deepClone, parseTime } from '@/utils/index.js'
@@ -89,6 +88,8 @@ export default {
         PaPaCommentId: this.commentsPaPaMsg[0].commentId,
         userId: this.$store.state.user.userId,
         commentId: '',
+        articleId: this.$route.params.articleId,
+        blogId: this.$route.params.blogId,
         time: '',
         content: '',
         likes: [],
@@ -179,13 +180,14 @@ export default {
       this.submitComData.content = content
       this.submitComData.time = parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}')
       createSoncomment(this.submitComData).then(res => {
-        // console.log(res, 'sonRes')
+        console.log(res, 'sonRes')
         this.submitComData.commentId = res.data.commentId
         this.removeReply('replyTextarea')
         const copyOjb = deepClone(this.submitComData)
         copyOjb.liked = false
         copyOjb.reported = false
-        this.DataTransit[this.faIndex].commentsSonMsg.unshift(copyOjb)
+        console.log(this.submitComData, 'this.submitComData')
+        // this.DataTransit[this.faIndex].commentsSonMsg.unshift(copyOjb)
         this.commentsPaPaMsg[this.faIndex].commentsSonMsg.unshift(this.submitComData)
         // console.log(this.submitComData, 'this.submitComData')
       })
@@ -217,6 +219,23 @@ export default {
       }
       // 同时准备提交按钮的数据，然后通过propsData传递给子元素
       // console.log(item, 'item')
+      this.submitComData = { // 初始化
+        PaPaCommentId: this.commentsPaPaMsg[0].commentId,
+        userId: this.$store.state.user.userId,
+        articleId: this.$route.params.articleId,
+        commentId: '',
+        blogId: this.$route.params.blogId,
+        time: '',
+        content: '',
+        likes: [],
+        reports: [],
+        name: this.$store.state.user.name,
+        avatar: this.$store.state.user.avatar,
+        beReply: {
+          name: '',
+          content: ''
+        }
+      }
       this.submitComData.beReply.name = item.name
       this.submitComData.beReply.content = item.content
       this.submitComData.beReply.commentId = item.commentId

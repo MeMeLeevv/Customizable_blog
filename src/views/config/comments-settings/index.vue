@@ -7,7 +7,7 @@
       <div class="content">您确定要删除此评论吗</div>
       <div class="btnWrap" @click="showNullTip = false">
         <div class="cancel" @click="showDeleteTip = false">取消</div>
-        <div class="delete" @click="deleteComment">删除</div>
+        <div class="delete" @click="deleteComment">删除</div><!--  -->
         <div class="delete0Report" @click="deleteAReportCom">删除并举报</div>
       </div>
     </div>
@@ -32,37 +32,37 @@
       >
         <div class="header">
           <div class="avatar">
-            <img class="img" :src="item.replyAvatar" alt />
+            <img class="img" :src="item.avatar" alt />
           </div>
           <div class="detailMag">
-            <div class="name">{{item.replyName}}</div>
+            <div class="name">{{item.name}}</div>
             <div class="tipMsg">
-              <span class="time">{{item.replyTime}}</span> 关于
+              <span class="time">{{item.time}}</span> 关于
               <span class="articleName">{{item.articleTitle}}</span>
             </div>
-            <div class="beReply" v-if="item.beReplyContent">
+            <div class="beReply" v-if="item.beReply">
               <div class="content">
                 回复
-                <span class="beReplyName">{{item.beReplyName}} :</span>
-                <span class="beReplyContent" :title="item.beReplyContent">{{item.beReplyContent}}</span>
+                <span class="beReplyName">{{item.beReply.name}} :</span>
+                <span class="beReplyContent" :title="item.beReply.content">{{item.beReply.content}}</span>
               </div>
             </div>
           </div>
         </div>
-        <div class="replyContent">{{item.replyContent}}</div>
+        <div class="replyContent">{{item.content}}</div>
         <transition name="fade">
           <div v-show="item.showIcons" class="icons">
             <span class="icon bin" title="删除" @click="(showDeleteTip = true) && (deleteIndex = index)">
               <svg-icon icon-class="bin" />
             </span>
-            <span class="icon" title="回复" @click="item.showComment = !item.showComment">
+            <span class="icon" title="回复" @click="replyInput.apply(this,[$event ,item, index])">
               <svg-icon icon-class="comment" />
             </span>
           </div>
         </transition>
         <div class="replyArea" v-if="item.showComment">
           <textarea v-model="item.bloggerReply" class="textArea" name id cols="30" rows="10"></textarea>
-          <span @click="reply(item, index)" class="replyBtn">回复</span>
+          <span @click="submitComment(item)" class="replyBtn">回复</span>
         </div>
       </div>
     </div>
@@ -71,17 +71,36 @@
 <script>
 import configHeader from '@/components/configHeader'
 import { Message } from 'element-ui'
-
+import { fetchPacomment, fetchSoncomment, createSoncomment } from '@/api/comment'
+import { fetchArticle } from '@/api/article'
+import { parseTime } from '@/utils/index.js'
+/* PaPaCommentId: { type: String, required: true },
+    userId: String,
+    blogId: String,
+    commentId: String,
+    time: String,
+    content: String,
+    likes: Array,
+    reports: Array,
+    beReply: {
+      name: String,
+      content: String,
+      userId: String,
+      commentId: String
+    },
+    name: String,
+    avatar: String */
 export default {
   name: 'comments-settings',
   data () {
     return {
+      content: '',
       requireComments: 'all',
       showNullTip: false,
       showDeleteTip: false,
       deleteIndex: -1, // 被点击删除的comment的索引
       comments: [
-        {
+        /* {
           state: 1, // 是否显示，数据库不会真的删除
           hasReported: false, // 是否被举报
           showIcons: false,
@@ -153,19 +172,94 @@ export default {
           beReplyName: 'Emma',
           beReplyContent: '这个js技巧很不错哦!',
           bloggerReply: '' // 博主回复， 用于textarea的v-model绑定
+        } */
+      ],
+      submitComData: {
+        PaPaCommentId: '',
+        userId: this.$store.state.user.userId,
+        commentId: '',
+        articleId: '',
+        blogId: this.$route.params.blogId,
+        time: '',
+        content: '',
+        likes: [],
+        reports: [],
+        name: this.$store.state.user.name,
+        avatar: this.$store.state.user.avatar,
+        beReply: {
+          name: '',
+          content: ''
         }
-      ]
+      }
     }
   },
-  created () {},
+  created () {
+  },
   watch: {
     requireComments: {
       handler: function (newV, oldV) {
         if (newV === oldV || !newV) return
+        this.comments = []
         if (newV === 'all') {
-          console.log('request all')
+          fetchPacomment({ blogId: this.$store.state.user.blogId }).then(paC => {
+            if (paC.data.length !== 0) {
+              this.comments = this.comments.concat(paC.data)
+              // console.log(this.commentsPaPaMsg, 'this.commentsPaPaMsg')
+              // this.commentsPaPaMsg.reverse()
+            }
+          }).then(res => {
+            fetchSoncomment({ blogId: this.$store.state.user.blogId }).then(sonC => {
+              if (sonC.data.length !== 0) {
+                this.comments = this.comments.concat(sonC.data)
+              }
+            }).then(res => {
+              for (let i = 0; i <= this.comments.length - 1; i++) {
+                this.$set(this.comments[i], 'showIcons', false)
+                this.$set(this.comments[i], 'showComment', false)
+                fetchArticle(this.comments[i].articleId).then(res => {
+                  const content = res.data[0].content
+                  const start = content.search(/>/)
+                  const last = content.search(/<\/h1>/)
+                  this.$set(this.comments[i], 'articleTitle', content.slice(start + 1, last))
+                  // this.comments[i].articleTitle = content.slice(start + 1, last)
+                  // console.log(start, last, content)
+                  // console.log(res, 'blogList res')
+                })
+              }
+              this.comments.reverse()
+            })
+          })
         } else {
-          console.log('request beRoported') // state = 1 && beReported = true
+          fetchPacomment({ blogId: this.$store.state.user.blogId }).then(paC => {
+            if (paC.data.length !== 0) {
+              this.comments = this.comments.concat(paC.data)
+              // console.log(this.commentsPaPaMsg, 'this.commentsPaPaMsg')
+              // this.commentsPaPaMsg.reverse()
+            }
+          }).then(res => {
+            fetchSoncomment({ blogId: this.$store.state.user.blogId }).then(sonC => {
+              if (sonC.data.length !== 0) {
+                this.comments = this.comments.concat(sonC.data)
+              }
+            }).then(res => {
+              this.comments.sort((a, b) => b.time - a.time)
+              this.comments = this.comments.filter(item => item.reports.length !== 0)
+              for (let i = 0; i <= this.comments.length - 1; i++) {
+                this.$set(this.comments[i], 'showIcons', false)
+                this.$set(this.comments[i], 'showComment', false)
+                fetchArticle(this.comments[i].articleId).then(res => {
+                  const content = res.data[0].content
+                  const start = content.search(/>/)
+                  const last = content.search(/<\/h1>/)
+                  this.$set(this.comments[i], 'articleTitle', content.slice(start + 1, last))
+                  // this.comments[i].articleTitle = content.slice(start + 1, last)
+                  // console.log(start, last, content)
+                  // console.log(res, 'blogList res')
+                })
+              }
+              this.comments.reverse()
+            })
+          })
         }
       },
       immediate: true
@@ -174,6 +268,56 @@ export default {
   computed: {},
   mounted () {},
   methods: {
+    submitComment (item) {
+      if (!item.bloggerReply) {
+        // 回复为空
+        this.showNullTip = true
+        return
+      }
+      this.submitComData.content = item.bloggerReply
+      this.submitComData.time = parseTime(new Date(), '{y}/{m}/{d} {h}:{i}:{s}')
+      createSoncomment(this.submitComData).then(res => {
+        // console.log(res, 'sonRes')
+        this.submitComData.commentId = res.data.commentId
+        this.submitComData.showIcons = false
+        this.submitComData.showComment = false
+        console.log(this.submitComData, 'this.submitComData')
+        // this.DataTransit[this.faIndex].commentsSonMsg.unshift(copyOjb)
+        this.comments.unshift(this.submitComData)
+        // console.log(this.submitComData, 'this.submitComData')
+        item.showComment = !item.showComment
+      })
+    },
+    /* 使用两个变量 clickReplyIndex 保存被点击的reply的index；showReplyArea 保存是否有reply框显示 */
+    replyInput (e, item, index) { // 传入被评论者的数据：PaPaCommentId name content
+      // 同时准备提交按钮的数据，然后通过propsData传递给子元素
+      // console.log(item, 'item')
+      item.showComment = !item.showComment
+      this.submitComData = { // 初始化
+        userId: this.$store.state.user.userId,
+        articleId: item.articleId,
+        commentId: '',
+        blogId: this.$route.params.blogId,
+        time: '',
+        content: '',
+        likes: [],
+        reports: [],
+        name: this.$store.state.user.name,
+        avatar: this.$store.state.user.avatar,
+        beReply: {
+          name: item.name,
+          content: item.content,
+          commentId: item.commentId,
+          userId: item.userId
+        }
+      }
+      if (item.PaPaCommentId === undefined) {
+        this.submitComData.PaPaCommentId = item.commentId
+      } else {
+        this.submitComData.PaPaCommentId = item.PaPaCommentId
+      }
+      // // console.log(parent.className, 'e')
+    },
     requestComments (e) {
       this.requireComments = e.target.dataset.request
     },
@@ -360,8 +504,10 @@ export default {
         .detailMag {
           display: inline-block;
           margin-left: 22px;
+          margin-top: 5px;
           font-size: 11px;
           color: #999999;
+          vertical-align: top;
           .name {
             font-size: 16px;
             color: #3e3e3e;
@@ -389,7 +535,7 @@ export default {
         }
       }
       .replyContent {
-        margin: 12px 0 12px 66px;
+        margin: 5px 0 12px 66px;
         font-size: 12px;
       }
       .icons {

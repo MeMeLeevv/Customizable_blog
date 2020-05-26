@@ -6,10 +6,12 @@
     @mouseenter="$store.state.app.isEditState && !editState && (showMap = true)"
     @mouseleave="$store.state.app.isEditState && !editState && (showMap = false)"
   >
-
-  <div v-if="timeLine" class="showTimeLine">
-    <timeLine @hide="timeLine=false" class="timeline" :blogData="blogData"></timeLine>
-  </div>
+    <div v-if="timeLine" class="showTimeLine">
+      <timeLine @hide="timeLine=false" class="timeline" :blogData="blogData"></timeLine>
+    </div>
+    <div v-if="tabArticle" class="showTimeLine">
+      <tabArticles @hide="tabArticle=false" :activeTab="activeTab" class="timeline" :blogData="tabBlogs"></tabArticles>
+    </div>
     <transition v-if="isBlogger" name="slide-fade">
       <div v-if="showMap" class="map">
         <div class="avatarMap"></div>
@@ -20,7 +22,9 @@
     <div class="main">
       <div class="avatar">
         <img v-if="!editState" :src="bloggerMsg.avatar" alt />
-        <span class="smallUploader" v-else><uploadImg :small="true" @update="updateImg" :fileList="fileList"></uploadImg></span>
+        <span class="smallUploader" v-else>
+          <uploadImg :small="true" @update="updateImg" :fileList="fileList"></uploadImg>
+        </span>
       </div>
       <div class="name">
         <div v-if="!editState">{{bloggerMsg.name}}</div>
@@ -38,12 +42,21 @@
       </div>
       <div class="desc">
         <div v-if="!editState">{{bloggerMsg.desc}}</div>
-        <textarea v-else @blur="updateDesc(bloggerMsg.desc)" cols="30" rows="2" maxlength="30" title="不超过30个字符" v-model="bloggerMsg.desc"></textarea>
+        <textarea
+          v-else
+          @blur="updateDesc(bloggerMsg.desc)"
+          cols="30"
+          rows="2"
+          maxlength="30"
+          title="不超过30个字符"
+          v-model="bloggerMsg.desc"
+        ></textarea>
       </div>
       <div class="articalGroup">
         <span class="post item">
           <div class="num">116</div>
-          <div class="belong">文章</div> <!-- 点击跳转到blogList那里,设锚id，点击就直接到文章列表那个位置？ -->
+          <div class="belong">文章</div>
+          <!-- 点击跳转到blogList那里,设锚id，点击就直接到文章列表那个位置？ -->
         </span>
         <span class="archive item" @click="showTimeLine">
           <div class="num">116</div>
@@ -101,7 +114,13 @@
         <h5 class="title">标签</h5>
         <div class="wrap">
           <span v-if="blogMsg.tagsArr.length === 0">暂无标签</span>
-          <span v-else v-for="(item, index) in blogMsg.tagsArr" :key="index" class="item">{{item}}</span>
+          <span
+            v-else
+            v-for="(item, index) in blogMsg.tagsArr"
+            @click="goTabArticles(item)"
+            :key="index"
+            class="item"
+          >{{item}}</span>
         </div>
       </div>
     </div>
@@ -119,13 +138,16 @@
 import { Message, MessageBox } from 'element-ui'
 import { deepClone } from '@/utils/index'
 import timeLine from '@/components/timeLine'
+import tabArticles from '@/components/tabArticles'
 import { getInfoByBlogId, updateUserInfo } from '@/api/user'
 import { getBlogSetting, updateBlogSetting } from '@/api/blog'
+import { fetchList } from '@/api/article'
 import uploadImg from '@/components/uploadImg/index.vue'
 export default {
   name: 'bloggerMsgCard',
   data () {
     return {
+      activeTab: '',
       showMap: false,
       isBlogger: false,
       editState: false, // 此时是否为可编辑状态
@@ -139,9 +161,10 @@ export default {
       pickLinkLogo: 'dotCircle',
       showLinkLogo: '',
       timeLine: false,
+      tabArticle: false,
+      tabBlogs: [],
       bloggerMsg: {
-        avatar:
-          '',
+        avatar: '',
         name: '',
         desc: ''
       },
@@ -161,6 +184,13 @@ export default {
     blogData: Array
   },
   watch: {
+    '$store.state.blog.blogSetting': {
+      handler (val) {
+        this.blogMsg = val
+        console.log(val, 'blogSetting')
+      },
+      deep: true
+    },
     '$route.params.blogId': {
       handler (val) {
         getInfoByBlogId(val).then(res => {
@@ -218,26 +248,55 @@ export default {
       immediate: true
     }
   },
-  created () {
-  },
+  created () {},
   computed: {},
   mounted () {},
   methods: {
+    goTabArticles (tab) {
+      this.tabArticle = true
+      this.activeTab = tab
+      fetchList({ blogId: this.$route.params.blogId })
+        .then(res => {
+          this.tabBlogs = res.data.filter(item => {
+            return item.tapsArr.indexOf(tab) !== -1 &&
+              item.statusValue !== '3' &&
+              item.statusValue !== '4'
+          })
+          console.log(this.tabBlogs, 'this.tabBlogs')
+        })
+        .then(res => {
+          for (let i = 0; i <= this.tabBlogs.length - 1; i++) {
+            const content = this.tabBlogs[i].content
+            const start = content.search(/>/)
+            const last = content.search(/<\/h1>/)
+            this.$set(this.tabBlogs[i], 'title', content.slice(start + 1, last))
+          }
+        })
+    },
     updateImg () {
-      updateUserInfo({ userId: this.$store.state.user.userId, avatar: this.fileList[0].url }).then(res => {
+      updateUserInfo({
+        userId: this.$store.state.user.userId,
+        avatar: this.fileList[0].url
+      }).then(res => {
         this.$store.dispatch('user/setAvatar', this.fileList[0].url)
       })
     },
     updateDesc (value) {
       if (value) {
-        updateUserInfo({ userId: this.$store.state.user.userId, desc: value }).then(res => {
+        updateUserInfo({
+          userId: this.$store.state.user.userId,
+          desc: value
+        }).then(res => {
           this.$store.dispatch('user/setDesc', value)
         })
       }
     },
     updateName (value) {
       if (value) {
-        updateUserInfo({ userId: this.$store.state.user.userId, name: value }).then(res => {
+        updateUserInfo({
+          userId: this.$store.state.user.userId,
+          name: value
+        }).then(res => {
           this.$store.dispatch('user/setName', value)
         })
       }
@@ -313,7 +372,10 @@ export default {
         this.addLinkValue = ''
         this.pickLinkLogo = 'dotCircle'
         // 如果確定在edit按鈕摁下去時將所有初始值都存到store中，只要放棄編輯就一切恢復原值，那麼是不是每個編輯區域也就不需要分展示值和form值了？
-        updateBlogSetting({ blogId: this.$store.state.user.blogId, socialLink: this.blogForm.socialLink })
+        updateBlogSetting({
+          blogId: this.$store.state.user.blogId,
+          socialLink: this.blogForm.socialLink
+        })
       }
     },
     addLinkTest (e) {
@@ -350,7 +412,9 @@ export default {
     }
   },
   components: {
-    timeLine, uploadImg
+    timeLine,
+    uploadImg,
+    tabArticles
   }
 }
 </script>

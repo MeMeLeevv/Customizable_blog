@@ -10,6 +10,7 @@
 <script>
 /* const version = require('element-ui/package.json').version // element-ui version from node_modules
 const ORIGINAL_THEME = '#bbd3f9' // default color */
+import { updateBlogSetting } from '@/api/blog'
 export default {
   data () {
     return {
@@ -74,7 +75,11 @@ export default {
       })
       this.$emit('change', val)
       console.log(val, 'val') */
-      this.$store.dispatch('blog/setTheme', val)
+      const data = this.$store.state.blog.blogSetting
+      updateBlogSetting({ blogId: this.$store.state.user.blogId, theme: val }).then(res => {
+        data.theme = val
+        this.$store.dispatch('blog/setBlogSetting', data)
+      })
       // $message.close()
     }
   },

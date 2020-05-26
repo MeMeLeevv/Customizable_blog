@@ -101,6 +101,13 @@ export default {
             height: '180',
             image:
             'https://gblobscdn.gitbook.com/assets%2F-M2My8NMVFW2o4zRm3mw%2F-M4J-mXV6x7dEeGWpst4%2F-M4J2KcBYpq4zsgqvkxq%2F%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20200407174851.png?alt=media&token=3e24256d-7fef-4ce6-adb6-12e225a583df'
+          },
+          {
+            id: '4',
+            width: '454',
+            height: '180',
+            image:
+            'https://img-blog.csdnimg.cn/20200524214858602.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MTA0Njk2MQ==,size_16,color_FFFFFF,t_70'
           }
         ]
       },
@@ -125,7 +132,8 @@ export default {
       }]
     }
   },
-  watch: {},
+  watch: {
+  },
   created () {
     this.showActive = this.menuData[0].path
   },

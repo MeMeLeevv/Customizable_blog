@@ -1,7 +1,7 @@
 <template>
   <div class="editor">
     <!-- 只在hover的时候在大容器的编辑器加上篮筐 -->
-    <editor-menu-bar v-if="editable" :editor="editor" v-slot="{ commands, isActive, focused, getMarkAttrs }">
+    <editor-menu-bar :style="center ? 'left: 50%; transform: translateX(-50%)' : ''" :editor="editor" v-slot="{ commands, isActive, focused, getMarkAttrs }">
       <div class="menubar is-hidden" :class="{ 'is-focused': focused }">
         <button class="menubar__button" @click="commands.undo">
           <svg-icon class="svg_icon" icon-class="undo" />
@@ -111,6 +111,7 @@
       class="menububble"
       :editor="editor"
       @hide="hideLinkMenu"
+      :style="center ? 'text-align: center' : ''"
       v-slot="{ commands, isActive, menu }"
     >
       <div
@@ -138,7 +139,7 @@
       </div>
     </editor-menu-bubble>
 
-    <editor-content class="editor__content" :editor="editor" />
+    <editor-content class="editor__content" :style="center ? 'text-align: center' : ''" :editor="editor" />
     <!-- <button @click="getContent">获取HTML</button> -->
   </div>
 </template>
@@ -170,6 +171,10 @@ export default {
   props: {
     content: String,
     needContent: Boolean,
+    center: {
+      type: Boolean,
+      default: false
+    },
     needTitle: {
       type: Boolean,
       default: false
@@ -194,22 +199,24 @@ export default {
     needContent: {
       handler (newV) {
         if (newV) {
-          // console.log(this.getContent(), ' this.getContent()')
+          // // console.log(this.getContent(), ' this.getContent()')
           this.$emit('update:content', this.getContent())
         }
       }
     },
     content (newV) {
+      // // console.log(newV, 'editorContent')
       this.initEditor()
     },
     editable () {
-      console.log(this.editable, 'editor')
+      // // console.log(this.editable, 'editor')
       this.editor.setOptions({
         editable: this.editable
       })
     },
     '$store.state.user.isBlogger': {
       handler (val) {
+        // // console.log(val, 'isBlogger')
         this.editable = val
       },
       immediate: true
@@ -221,7 +228,7 @@ export default {
       var parent = document.getElementsByClassName('editor__content')[0]
       if (ProseMirror.length === 2) { // 点击文章列表进入具体文章时，editor赋值时会造成原来的+新插入的，所以会有两个，要删除第一个编辑器
         parent.removeChild(ProseMirror[0])
-        console.log(ProseMirror, 'ProseMirror')
+        // console.log(ProseMirror, 'ProseMirror')
       }
     // Code that will run only after the
     // entire view has been re-rendered
@@ -295,16 +302,16 @@ export default {
       }
     },
     focus (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
-      // console.log(e, 'focus')
+      // // console.log(e, 'focus')
       this.hideBar = true
     },
     blur (e) { // 给div或其他非input元素注册focus函数需要加上 tabindex="0" 这样的属性
       // this.hideBar = false
-      // console.log(e, 'blur')
+      // // console.log(e, 'blur')
     },
     getContent () {
       return this.editor.getHTML()
-      // // console.log(this.editor.getHTML(), 'content')
+      // // // console.log(this.editor.getHTML(), 'content')
     },
     showLinkMenu (attrs) {
       this.linkUrl = attrs.href

@@ -1,9 +1,10 @@
 <template>
-  <div class="Layout">
+  <div class="Layout" ref="layout">
     <transition name="left-fade">
       <router-view v-if="!configNow"  class="sidebar" />
       <router-view v-else class="sidebar" name="second" />
     </transition>
+
     <div class="main" ref="main">
       <transition v-if="isBlogger" name="slide-fade">
         <div class="triangle" v-show="triangleShow" @click.stop="shrink">
@@ -29,6 +30,12 @@ export default {
     }
   },
   watch: {
+    '$store.state.blog.blogWasFresh': {
+      handler (val) {
+        this.$refs.main.scrollTop = this.$store.state.blog.scrollTop
+        this.$store.dispatch('blog/setBlogFresh', false)
+      }
+    },
     '$store.state.user.isBlogger': {
       handler (val) {
         this.isBlogger = val
@@ -46,11 +53,25 @@ export default {
   },
   computed: {},
   mounted () {
+    window.addEventListener('scroll', this.menu, true)
+
     this.$nextTick(function () {
       this.fullpage()
     })
   },
   methods: {
+    menu () {
+      // this.scroll = document.body.scrollTop === 0 ? document.documentElement.scrollTop : document.body.scrollTop
+      if (this.$refs.main !== undefined) {
+        const scrollTop = this.$refs.main.scrollTop
+        if (scrollTop !== 0) {
+          this.$store.dispatch('blog/setScrollTop', scrollTop)
+        }
+      }
+
+      // this.scroll = this.$store.state.blog.scrollTop
+      // console.log(this.scroll)
+    },
     fullpage () {
       setTimeout(() => {
         this.$store.dispatch('blog/setFullPage', true)

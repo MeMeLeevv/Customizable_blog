@@ -36,8 +36,8 @@
       <transition name="slide-fade">
         <ul v-show="showMineList" class="mineList" @mouseleave="showMineList = false">
           <li @click="myBlog">我的博客</li>
-          <li>管理博客</li>
-          <li>账号设置</li>
+          <!-- <li>管理博客</li>
+          <li>账号设置</li> -->
           <li @click="logout">退出</li>
         </ul>
       </transition>
@@ -75,11 +75,11 @@
         <div v-else style="text-align:center;margin-bottom: 10px">暂无通知</div>
       </div>
     </div>
-    <div class="search_wrap margin">
+    <!-- <div class="search_wrap margin">
       <button title="搜索">
         <svg-icon class="svg_icon" icon-class="search" />
       </button>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -234,6 +234,7 @@ export default {
   width: 100%;
   height: $navbarHeight;
   background-color: color(primary);
+  opacity: .5;
   z-index: -1;
 }
 .navbar {
@@ -320,7 +321,7 @@ export default {
         cursor: pointer;
       }
       .item {
-        max-height: 85px;
+        max-height: 100px;
         display: flex;
         flex-direction: row;
         justify-content: space-evenly;

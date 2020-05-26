@@ -49,11 +49,11 @@ service.interceptors.response.use(
     if (res.code === 201) { // 验证登录态失败，需要重新登录
       return Promise.reject(new Error(res.msg || 'Error 201'))
     } else if (res.code !== 200 && res.code !== 304) {
-      Message({
+      /* Message({
         message: res.msg || 'Error',
         type: 'error',
         duration: 3 * 1000
-      })
+      }) */
 
       // 403 Forbidden 服务器收到请求，但是拒绝提供服务。服务器通常会在响应正文中给出不提供服务的原因
       if (res.code === 403) { // 权限已过期
@@ -86,7 +86,7 @@ service.interceptors.response.use(
     Message({
       message: error.message,
       type: 'error',
-      duration: 5 * 1000
+      duration: 3 * 1000
     })
     return Promise.reject(error)
   }

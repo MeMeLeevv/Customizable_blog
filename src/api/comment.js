@@ -1,26 +1,34 @@
 import request from '@/utils/request'
 
-export function fetchList (query) {
+/* export function fetchPaList (query) {
   return request({
-    url: '/comment/list',
+    url: '/getPaComment',
     method: 'get',
     params: query
   })
 }
 
-export function fetchPacomment (articleId) {
+export function fetchSonList (query) {
+  return request({
+    url: '/getSonComment',
+    method: 'get',
+    params: query
+  })
+} */
+
+export function fetchPacomment (query) {
   return request({
     url: '/paComment/list',
     method: 'get',
-    params: { articleId }
+    params: query
   })
 }
 
-export function fetchSoncomment (PaPaCommentId) {
+export function fetchSoncomment (query) {
   return request({
     url: '/sonComment/list',
     method: 'get',
-    params: { PaPaCommentId }
+    params: query
   })
 }
 

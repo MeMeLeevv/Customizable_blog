@@ -42,7 +42,7 @@
 </template>
 <script>
 import configHeader from '@/components/configHeader'
-
+import { updateBlogSetting } from '@/api/blog'
 export default {
   name: 'Fonts',
   data () {
@@ -109,10 +109,13 @@ export default {
   },
   created () {},
   watch: {
-    '$store.state.app.fontFamily' (newV, oldV) {
-      if (newV !== oldV) {
-        this.usingFontName = newV
-      }
+    '$store.state.blog.blogSetting.fontStyle': {
+      handler (newV, oldV) {
+        if (newV !== oldV) {
+          this.usingFontName = newV
+        }
+      },
+      immediate: true
     },
     tabIndex: {
       handler (newV) {
@@ -145,10 +148,18 @@ export default {
   },
   methods: {
     setDefault () {
-      this.$store.dispatch('app/setFontFamily', '')
+      const data = this.$store.state.blog.blogSetting
+      updateBlogSetting({ blogId: this.$store.state.user.blogId, fontStyle: '' }).then(res => {
+        data.fontStyle = ''
+        this.$store.dispatch('blog/setBlogSetting', data)
+      })
     },
     setFont (font) {
-      this.$store.dispatch('app/setFontFamily', font)
+      const data = this.$store.state.blog.blogSetting
+      updateBlogSetting({ blogId: this.$store.state.user.blogId, fontStyle: font }).then(res => {
+        data.fontStyle = font
+        this.$store.dispatch('blog/setBlogSetting', data)
+      })
     },
     minus (item) { // 字体减小 在store中font-size变化rem
       let num = Number(item.size.match(/^(\d+)px$/)[1])

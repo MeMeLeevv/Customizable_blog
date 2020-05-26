@@ -3,20 +3,28 @@
 const state = {
   userInfo: {}, // 已存在blogId和userId
   blogSetting: {
-    theme: '#bbd3f9'
-  },
-  blogListSetting: {
-    layout: '4', // 1为单列
-    align: '2',
-    columns: '3',
-    imgPlace: '2'
+    theme: '#bbd3f9',
+    blogListSetting: {
+    }
   },
   noticeArr: [],
   hasNewMsg: false,
-  fullPage: false
+  fullPage: false,
+  scrollTop: 0,
+  blogWasFresh: false,
+  showHeadlines: false
 }
 
 const mutations = {
+  SET_HEADLINES: (state, value) => {
+    state.showHeadlines = value
+  },
+  SET_BLOGWASFRESH: (state, value) => {
+    state.blogWasFresh = value
+  },
+  SET_SCROLLTOP: (state, value) => {
+    state.scrollTop = value
+  },
   SETFULLPAGE: (state, value) => {
     state.fullPage = value
   },
@@ -36,11 +44,20 @@ const mutations = {
     state.blogSetting = value
   },
   SET_BLOGlISTSETTING: (state, value) => {
-    state.blogListSetting = value
+    state.blogSetting.blogListSetting = value
   }
 }
 
 const actions = {
+  setHeadlines ({ commit }, value) {
+    commit('SET_HEADLINES', value)
+  },
+  setBlogFresh ({ commit }, value) {
+    commit('SET_BLOGWASFRESH', value)
+  },
+  setScrollTop ({ commit }, value) {
+    commit('SET_SCROLLTOP', value)
+  },
   setFullPage ({ commit }, value) {
     commit('SETFULLPAGE', value)
   },

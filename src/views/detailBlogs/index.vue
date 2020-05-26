@@ -1,6 +1,7 @@
 <template>
   <div class="detailBlogs">
     <navbar></navbar>
+    <button class="back" @click.stop="back" title="返回"><svg-icon class="icon" icon-class="back" /></button>
     <settingDialog
       v-bind:editSetting.sync="editSetting"
       v-bind:articleMsg.sync="articleMsg"
@@ -14,6 +15,10 @@
       <div class="date" title="标签" v-if="articleMsg.tapsArr.length !== 0">
         <svg-icon class="icon" icon-class="tap" /> :
         <span class="tapItem" v-for="(item,index) in articleMsg.tapsArr" :key="index">{{item}}</span>
+      </div>
+      <div class="date" title="收藏" style="cursor: pointer" @click="starArt">
+        <svg-icon class="icon" :icon-class="hasLike ? 'liked' : 'like'" /> :
+        <span>{{hasLike ? '已收藏' : '收藏'}}</span>
       </div>
     </div>
     <titleBlog
@@ -63,6 +68,7 @@ import settingDialog from '@/views/detailBlogs/settingDialog.vue'
 import comments from '@/views/detailBlogs/comments.vue'
 import { parseTime } from '@/utils/index.js'
 import { updateArticle, fetchArticle } from '@/api/article'
+import { getInfo, updateUserInfo } from '@/api/user'
 import { createPacomment, fetchPacomment, fetchSoncomment } from '@/api/comment'
 export default {
   name: 'detailBlogs',
@@ -70,6 +76,8 @@ export default {
   data () {
     return {
       editSetting: false,
+      hasLike: false, // 检测
+      userStar: [], // 用户收藏的文章id
       hideNavbar: true,
       tapString: '',
       visitor: true,
@@ -185,10 +193,10 @@ export default {
           if (res.data.length === 0) { // 没有此文章，用户操作为新建，不需要初始化
           } else { // 初始化文章
             this.articleMsg = Object.assign(this.articleMsg, res.data[0])
-            fetchPacomment(this.$route.params.articleId).then(paC => {
+            fetchPacomment({ articleId: this.$route.params.articleId }).then(paC => {
               if (paC.data.length !== 0) {
                 for (let i = 0; i < paC.data.length; i++) {
-                  fetchSoncomment(paC.data[i].commentId).then(sonC => {
+                  fetchSoncomment({ PaPaCommentId: paC.data[i].commentId }).then(sonC => {
                     if (sonC.data.length !== 0) {
                       paC.data[i].commentsSonMsg = paC.data[i].commentsSonMsg.concat(sonC.data)
                     }
@@ -200,6 +208,15 @@ export default {
               }
             })
             // console.log(this.articleMsg, 'this.articleMsg')
+          }
+        })
+
+        getInfo(this.$store.state.user.userId).then(res => {
+          this.userStar = res.data.starIdArr
+          if (res.data.starIdArr.includes(this.$route.params.articleId)) {
+            this.hasLike = true
+          } else {
+            this.hasLike = false
           }
         })
       },
@@ -234,6 +251,20 @@ export default {
   mounted () {
   },
   methods: {
+    starArt () {
+      if (this.hasLike) { // 取消收藏
+        const index = this.userStar.indexOf(this.$route.params.articleId)
+        this.userStar.splice(index, 1)
+      } else {
+        this.userStar.push(this.$route.params.articleId)
+      }
+      this.hasLike = !this.hasLike
+      updateUserInfo({ starIdArr: this.userStar, userId: this.$store.state.user.userId })
+    },
+    back () {
+      this.$router.go(-1)
+      this.$store.dispatch('user/setConfigNow', false)
+    },
     submitPaCom () {
       // 根据
       if (!this.faContent) return
@@ -243,6 +274,7 @@ export default {
       this.faComment.userId = this.$store.state.user.userId
       this.faComment.name = this.$store.state.user.name
       this.faComment.avatar = this.$store.state.user.avatar
+      this.faComment.blogId = this.$route.params.blogId
       this.faComment.hasSon = false
       createPacomment(this.faComment).then(res => {
         this.faComment.commentId = res.data.commentId
@@ -305,6 +337,15 @@ export default {
   width: 50%;
   margin: 0 auto;
   margin-top: 70px;
+  .back {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 150px;
+    left: 80px;
+    cursor: pointer;
+    font-size: 18px;
+  }
   .navbar {
     top: 55px;
   }
@@ -326,7 +367,7 @@ export default {
     .tapItem {
       margin-left: 5px;
       padding: 2px 5px;
-      background: #98c3de;
+      background: color(primary);
       border-radius: 5px;
       color: white;
       cursor: pointer;

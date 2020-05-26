@@ -424,7 +424,7 @@ export default {
           .coverUpload {
             margin-top: 5px;
             width: 250px;
-            height: 250px;
+            height: 200px;
             overflow: hidden;
           }
         }
