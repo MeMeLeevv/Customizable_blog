@@ -33,13 +33,9 @@ const findSameCollArrData = async (Data) => { // 寻找相同表下符合条件�
   /* 这里return范回的数据就是setModel里最后return的那些实例对象，所以res.xxx取到的就是那个存在着的具体的collection实例了，实例才会有那些增删改查方法！ */
   return initSchema().then(async res => { // 循环每个collection的数据插入数据库中
     let name = Data.collectName /* 取setModel的实例名 */
-    let _idArr = Data.condition._idArr
-    let condition = []
-    for (let i = 0; i < _idArr.length; i++) {
-      condition.push({ _id: _idArr[i] })
-    }
+    let condition = Data.condition
     //模糊查询
-    // console.log(condition, 'condition!!!!!!!!!!!!')
+    console.log(condition, 'condition!!!!!!!!!!!!')
     return await res[name].find({
       $or: condition
     }, function (err, res) {
@@ -108,17 +104,17 @@ const remove = async (Data) => { // 传入搭配有数据库collection名称和�
 
 const insertdbData = async (arrData) => { // 传入搭配有数据库collection名称和相应数据的数组
   /* 这里return范回的数据就是setModel里最后return的那些实例对象，所以res.xxx取到的就是那个存在着的具体的collection实例了，实例才会有那些增删改查方法！ */
-  return initSchema().then(async res => { // 循环每个collection的数据插入数据库中
-    for (let i = 0, len = arrData.length; i < len; i++) {
+      let result = []
+      return initSchema().then(async res => { // 循环每个collection的数据插入数据库中
+      for (let i = 0, len = arrData.length; i < len; i++) {
       let name = arrData[i].collectName /* 取setModel的实例名 */
       let data = arrData[i].data //Array
       console.log(data, 'data!!!!!!!!!!!!!!')
       console.log(res[name], 'res[name]!!!!!')
-      let result = []
       await res[name].insertMany(data, { ordered: false }).then(res => { // { ordered: false } 遇到重复项不报错，继续插入下一项
         console.log(res, 'you get the res!!!!!!!!!!!!!!!!!!!!!!')
         if (res.length > 0) {/* 返回对象数组 */
-          result.push(res)
+          result = result.concat(res)
         } else {
           return 'you get a null res!please try again'
         }
@@ -126,10 +122,11 @@ const insertdbData = async (arrData) => { // 传入搭配有数据库collection�
       }).catch(err => {
         console.log(`${name}初始化失败，错误为:${err}`)
       }).finally(ress => {
-        return result
       })
     }
     // await process.exit(0)
+  }).then(res => {
+    return result
   })
 }
 

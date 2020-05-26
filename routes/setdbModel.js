@@ -5,17 +5,17 @@ const mongoose = require('mongoose')
 
 const initSchema = async () => {
   var Schema = mongoose.Schema
-  // 用户信息
+  // 用户信息表
   var userDatas // model实例承载者！！！！！！！这个对应collectName，
   var userDataschema = new Schema({ // 制定lessonInfo的数据规则
-    account: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    name: String,
-    avatar: String,
+    account: { type: String, required: true, unique: true }, // 账户
+    password: { type: String, required: true }, // 密码
+    name: String, //
+    avatar: String, // 
     starIdArr: Array, //收藏
     desc: String, // 个性签名
-    blogId: { type: String, required: true },
-    userId: { type: String, required: true }
+    blogId: { type: String, required: true }, // 
+    userId: { type: String, required: true }  //
   }, { collection: 'userDatas' })/* 设定collection的名字，否则数据库会自动帮你的名字复数 */
 
   // 博客信息
@@ -23,16 +23,29 @@ const initSchema = async () => {
   var blogDataschema = new Schema({ // 制定lessonInfo的数据规则
     bloggerId: { type: String, required: true },
     blogId: { type: String, required: true },
-    UIModuleIdArr: Array, // 可以考虑加个分类所属，效率查找 [{classify: String,id: String}]
+    headlines: {
+      bg: String,
+      content: String
+    }, // 可以考虑加个分类所属，效率查找 [{classify: String,id: String}]
     tagsArr: Array, // [name: String],
     socialLink: Array,
     fontStyle: String,
     theme: String,
+    blogListSetting: {
+      layout: String, // 1为单列
+      align: String,
+      columns: String,
+      imgPlace: String
+    },
     live2d: {
       show: Boolean,
       msgs: Array,
       chats: Array,
-      showModel: String
+      showModel: String,
+      left: Number,
+      top: Number,
+      width: Number,
+      height: Number
     }
   }, { collection: 'blogDatas' })/* 设定collection的名字，否则数据库会自动帮你的名字复数 */
 
@@ -60,6 +73,7 @@ const initSchema = async () => {
   var paCommentDataschema = new Schema({ // 制定lessonInfo的数据规则
     articleId: { type: String, required: true },
     commentId: String,
+    blogId: String,
     content: String,
     time: String,
     userId: String,
@@ -76,7 +90,9 @@ const initSchema = async () => {
   var sonCommentDatas // model实例承载者！！！！！！！这个对应collectName，
   var sonCommentDataschema = new Schema({ // 制定lessonInfo的数据规则
     PaPaCommentId: { type: String, required: true },
+    articleId: String,
     userId: String,
+    blogId: String,
     commentId: String,
     time: String,
     content: String,

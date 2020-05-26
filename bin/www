@@ -26,8 +26,8 @@ var server = app.listen(port);
 var io = require('socket.io').listen(server);
 var interval;
 io.sockets.on('connection', (socket) => {
-  socket.on('login', (data) => {
-    interval = setInterval(() => {
+  socket.on('login', (data) => { // 用户已登录时，开始以下处理
+    interval = setInterval(() => {// 不断请求数据库，将消息发送给客户端
       findNotices(data.blogId).then(res => {
         socket.emit('getNotice', {
           msg: res.data,
