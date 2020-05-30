@@ -37,7 +37,7 @@
         <ul v-show="showMineList" class="mineList" @mouseleave="showMineList = false">
           <li @click="myBlog">我的博客</li>
           <!-- <li>管理博客</li>
-          <li>账号设置</li> -->
+          <li>账号设置</li>-->
           <li @click="logout">退出</li>
         </ul>
       </transition>
@@ -79,7 +79,11 @@
       <button title="搜索">
         <svg-icon class="svg_icon" icon-class="search" />
       </button>
-    </div> -->
+    </div>-->
+
+    <div class="logoWrap">
+      <img class="logo" src="https://img-blog.csdnimg.cn/20200526232259333.png" alt />
+    </div>
   </div>
 </template>
 <script>
@@ -103,7 +107,8 @@ export default {
       // eslint-disable-next-line no-undef
       const socket = io('http://localhost:3000')
       const that = this // socket里面有个自己的this
-      if (newV) { // 此处的this无法与数据双向绑定，也就是说无法及时跟新，所以暂时采用store全局保存
+      if (newV) {
+        // 此处的this无法与数据双向绑定，也就是说无法及时跟新，所以暂时采用store全局保存
         socket.emit(
           'login',
           { blogId: that.$store.state.user.blogId },
@@ -226,7 +231,7 @@ export default {
   opacity: 0;
 }
 .navbar::before {
-  content: '';
+  content: "";
   display: inline-block;
   position: absolute;
   left: 0;
@@ -234,7 +239,7 @@ export default {
   width: 100%;
   height: $navbarHeight;
   background-color: color(primary);
-  opacity: .5;
+  opacity: 0.5;
   z-index: -1;
 }
 .navbar {
@@ -247,6 +252,15 @@ export default {
   display: flex;
   flex-direction: row-reverse;
   padding-right: 80px;
+  .logoWrap {
+    margin-right: 70%;
+    margin-top: 8px;
+    .logo {
+      display: inline-block;
+      width: 50px;
+      height: 35px;
+    }
+  }
   button {
     background: none;
   }

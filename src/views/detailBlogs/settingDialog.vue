@@ -86,7 +86,7 @@
                   ></el-input>
                 </div>
               </div>
-              <div class="category">
+              <!-- <div class="category">
                 <span class="title">分类</span>
                 <el-select
                   class="noneBorderW"
@@ -105,7 +105,7 @@
                     :value="item.value"
                   ></el-option>
                 </el-select>
-              </div>
+              </div> -->
             </div>
             <div class="commentSet">
               <span class="title"></span>
@@ -457,9 +457,9 @@ export default {
         display: flex;
         flex-direction: row;
         justify-content: space-around;
-        margin-top: 20px;
         .tapWrap {
           padding-right: 22px;
+          padding-top: 22px;
           width: 222px;
           position: relative;
           text-align: left;
@@ -487,6 +487,9 @@ export default {
             }
           }
         }
+      }
+      .statusSet {
+        padding-top: 12px;
       }
       .statusSet,
       .commentSet {

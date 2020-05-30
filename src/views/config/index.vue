@@ -1,6 +1,6 @@
 <template>
   <div class="config-index">
-    <svg-icon class="logo" icon-class="garden" />
+    <img :src="logo" class="logo" alt="">
     <configMenu v-if="blogId" class="menu" :menuData="menuData" />
   </div>
 </template>
@@ -11,7 +11,8 @@ export default {
   data () {
     return {
       blogId: '',
-      menuData: []
+      menuData: [],
+      logo: 'https://img-blog.csdnimg.cn/20200526232259333.png'
     }
   },
   watch: {
@@ -66,6 +67,9 @@ export default {
 <style lang="scss" scoped>
 .config-index {
   .logo {
+    display: inline-block;
+    width: 70px;
+    height: 50px;
     font-size: 30px;
   }
   .menu {

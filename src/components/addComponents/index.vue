@@ -204,12 +204,12 @@ export default {
         height: calc(100vh - 290px);
         overflow-y: auto;
         overflow-x: auto;
-        width: 298px;
+        width: 200px;
       }
     }
     .right {
       display: inline-block;
-      width: calc(100vw - 500px);
+      width: calc(100vw - 400px);
       height: calc(100vh - 169px);
       overflow-y: auto;
       .showBlock{

@@ -72,9 +72,10 @@ export default {
           const blogSetting = this.$store.state.blog.blogSetting
           blogSetting.headlines = val
           console.log(val, 'headlinesData')
-          updateBlogSetting({ blogId: this.$store.state.user.blogId, headlines: val }).then(res => {
-            this.$store.dispatch('blog/setBlogSetting', blogSetting)
-          })
+          this.$store.dispatch('blog/setBlogSetting', blogSetting)
+          /* updateBlogSetting({ blogId: this.$store.state.user.blogId, headlines: val }).then(res => {
+
+          }) */
         }
       },
       deep: true

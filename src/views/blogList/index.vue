@@ -622,6 +622,9 @@ export default {
         font-weight: 500;
       }
       .blog-desc {
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-all;
         font-weight: 300;
         font-size: 15px;
         line-height: 1.8em;
