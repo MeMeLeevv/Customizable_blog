@@ -64,36 +64,11 @@ app.use(session({
 }));
 
 
-
-// Init gfs
-
-// Create storage engine
-const storage = new GridFsStorage({
-  url: mongoURI,
-  file: (req, file) => {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, buf) => {//修改文件名字 生成加密安全的随机数据
-        if (err) {
-          return reject(err);
-        }
-        const filename = buf.toString('hex') + path.extname(file.originalname);// toString('hex')对应 16进制
-        const fileInfo = {
-          filename: filename,
-          bucketName: 'uploads'//后端数据库collect名字为：[bucketName].chunks(文件分块区)/[bucketName].files(文件数索引区)
-        };
-        resolve(fileInfo);
-      });
-    });
-  }
-});
-const upload = multer({ storage });
-
-
 /* 连接数据库 */
-mongoose.connect(mongoURI, { useUnifiedTopology: true, useNewUrlParser: true })
+const promise = mongoose.connect(mongoURI, { useUnifiedTopology: true, useNewUrlParser: true })
 var db = mongoose.connection
 db.on('error', console.error.bind(console, 'connection error;'))
-db.once('open', () => {
+db.once('open', () => { 
   console.log('mongodb连接成功!!!!!!!!!!!!!!!!!!!!!!!!')
   gfs = Grid(db.db, mongoose.mongo)
   gfs.collection('uploads')
@@ -128,6 +103,31 @@ db.once('open', () => {
     })
   });
 })
+
+
+// Init gfs
+
+// Create storage engine
+const storage = new GridFsStorage({
+  db: promise,
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {//修改文件名字 生成加密安全的随机数据
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString('hex') + path.extname(file.originalname);// toString('hex')对应 16进制
+        const fileInfo = {
+          filename: filename,
+          bucketName: 'uploads'//后端数据库collect名字为：[bucketName].chunks(文件分块区)/[bucketName].files(文件数索引区)
+        };
+        resolve(fileInfo);
+      });
+    });
+  }
+});
+const upload = multer({ storage });
 
 
 module.exports = app;
