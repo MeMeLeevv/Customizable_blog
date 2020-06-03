@@ -3,7 +3,7 @@
     <span class="publish" title="发布" @click.stop="goBlankEditBlog">
       <svg-icon class="icon" icon-class="add" />
     </span>
-    <configHeader backRouter="/" lastTitle="首页" nowTitle="博客"></configHeader>
+    <configHeader :backRouter="`/${this.$store.state.user.blogId}`" lastTitle="首页" nowTitle="博客"></configHeader>
     <div class="search">
       <svg-icon class="icon" icon-class="search" />
       <input v-model="searchContent" placeholder="搜索项目..." type="search" />

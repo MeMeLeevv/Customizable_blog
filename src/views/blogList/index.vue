@@ -280,7 +280,7 @@ export default {
     },
     blogListSetting: {
       handler: function (newV, oldV) {
-        // console.log(newV, 'blog')
+        console.log(newV, 'blogListSetting')
         updateBlogSetting({ blogId: this.$store.state.user.blogId, blogListSetting: newV }).then(res => {
           this.$store.dispatch('blog/setBlogListSetting', newV)
         })

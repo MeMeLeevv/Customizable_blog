@@ -3,6 +3,28 @@
  */
 
 /**
+ * Store the data into localstorage
+ * @param {(Object|string|number)} time
+ * @param {string} cFormat
+ * @returns {string | null}
+ */
+export function storeLocalData (stateArr) {
+  /* 需要的参数格式为: [[key, value]] */
+  stateArr.forEach(e => {
+    localStorage.setItem(e[0], JSON.stringify(e[1]))
+  })
+}
+
+export function getLocalData (stateArr) {
+  /* 需要的参数格式为: [key] */
+  const result = []
+  stateArr.forEach(e => {
+    result.push(JSON.parse(localStorage.getItem(e)))
+  })
+  return result
+}
+
+/**
  * Parse the time to string
  * @param {(Object|string|number)} time
  * @param {string} cFormat

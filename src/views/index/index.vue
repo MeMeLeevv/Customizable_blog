@@ -92,6 +92,7 @@ export default {
       handler (newV) {
         fetchList({ blogId: newV }).then(res => {
           this.blogData = res.data.filter(res => res.statusValue === '1')
+          this.$store.dispatch('blog/setArticlesNum', this.blogData.length)
           for (let i = 0; i < this.blogData.length; i++) {
             const content = this.blogData[i].content
             const start = content.search(/>/)

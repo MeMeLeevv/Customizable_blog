@@ -1,7 +1,7 @@
 <template>
   <div class="comments-settings">
     <div class="overlay" v-if="showNullTip || showDeleteTip"></div>
-    <configHeader backRouter="/" lastTitle="首页" nowTitle="评论"></configHeader>
+    <configHeader :backRouter="`/${this.$store.state.user.blogId}`" lastTitle="首页" nowTitle="评论"></configHeader>
     <div v-if="showDeleteTip" class="DeleteTip">
       <div class="title">删除评论</div>
       <div class="content">您确定要删除此评论吗</div>

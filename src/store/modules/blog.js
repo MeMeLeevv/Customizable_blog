@@ -7,6 +7,7 @@ const state = {
     blogListSetting: {
     }
   },
+  allArticleSNum: 0,
   noticeArr: [],
   hasNewMsg: false,
   fullPage: false,
@@ -16,6 +17,9 @@ const state = {
 }
 
 const mutations = {
+  SETARTICLESNUM: (state, value) => {
+    state.allArticleSNum = value
+  },
   SET_HEADLINES: (state, value) => {
     state.showHeadlines = value
   },
@@ -49,6 +53,9 @@ const mutations = {
 }
 
 const actions = {
+  setArticlesNum ({ commit }, value) {
+    commit('SETARTICLESNUM', value)
+  },
   setHeadlines ({ commit }, value) {
     commit('SET_HEADLINES', value)
   },

@@ -14,6 +14,7 @@
 
 <script>
 import { asyncRoutes } from '@/router'
+import { storeLocalData, getLocalData } from '@/utils'
 
 // import { Message } from 'element-ui'
 import live2d from '@/components/live2d/live2d'
@@ -39,10 +40,6 @@ export default {
     }
   },
   created () {
-    if (!this.$route.params.blogId) {
-      // 刚开始加载 如果路由没有blogId，则默认赋值
-      this.$router.push('/tCqtL_yo9')
-    }
     this.$store.state.live2d.models.forEach(item => {
       this.models.push(item.value)
     })
@@ -102,6 +99,11 @@ export default {
     $route: { // 注意不要使用箭头函数，他没有自己的this和args
       handler: function (to, from) { /* 设置页面也储存blogId吧！这样就可以统一了~~~~~~~~~~~~ */
       // 记录路由的来源和去路,及时修改路由index.js对应路由下main的component
+        if (to.params.blogId) { // 如果存在blogId，则在本地存储，以便刷新时用到
+          console.log(to.params.blogId, 'to.params.blogId')
+          storeLocalData([['blogId', to.params.blogId]])
+          console.log(getLocalData(['blogId'])[0], "getLocalData(['blogId'])[0]")
+        }
         this.to = to.path
         // const that = this
         if (to.params.blogId) {
@@ -117,7 +119,12 @@ export default {
           } */
         }
         if (this.to === '/') {
-          this.$router.push('/tCqtL_yo9')
+          console.log('to == /')
+          if (getLocalData(['blogId']).length !== 0) { // 这里是为了预防刷新时路由会自动变成‘/’,此时需要取出blogId
+            this.$router.push(`/${getLocalData(['blogId'])[0]}`)
+          } else {
+            this.$router.push('/tCqtL_yo9') // 否则默认路由为‘/tCqtL_yo9’
+          }
         }
         /* if (
           !this.$store.state.user.hasLogin && // hasLogin会有延迟，！！！！
@@ -149,6 +156,12 @@ export default {
     '$store.state.user.blogId': { // 设置博主状态
       handler (val) {
         this.$store.dispatch('user/setBlogger', this.$route.params.blogId === val)
+      },
+      immediate: true
+    },
+    '$route.params.blogId': { // 设置博主状态
+      handler (val) {
+        this.$store.dispatch('user/setBlogger', this.$store.state.user.blogId === val)
       },
       immediate: true
     }

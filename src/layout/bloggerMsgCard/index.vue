@@ -54,12 +54,12 @@
       </div>
       <div class="articalGroup">
         <span class="post item">
-          <div class="num">116</div>
+          <div class="num">{{articleNum}}</div>
           <div class="belong">文章</div>
           <!-- 点击跳转到blogList那里,设锚id，点击就直接到文章列表那个位置？ -->
         </span>
         <span class="archive item" @click="showTimeLine">
-          <div class="num">116</div>
+          <div class="num">{{articleNum}}</div>
           <div class="belong">归档</div>
         </span>
       </div>
@@ -168,6 +168,7 @@ export default {
         name: '',
         desc: ''
       },
+      articleNum: 0,
       blogMsg: {
         socialLink: [],
         tagsArr: []
@@ -184,6 +185,11 @@ export default {
     blogData: Array
   },
   watch: {
+    '$store.state.blog.allArticleSNum': {
+      handler (val) {
+        this.articleNum = val
+      }
+    },
     '$store.state.blog.blogSetting': {
       handler (val) {
         this.blogMsg = val
