@@ -1,6 +1,6 @@
 <template>
   <div class="Likes">
-    <configHeader :backRouter="`/${this.$store.state.user.blogId}`" lastTitle="首页" nowTitle="博客"></configHeader>
+    <configHeader :backRouter="`/${this.$store.state.user.blogId}`" lastTitle="首页" nowTitle="喜欢"></configHeader>
 
     <div
       class="searchItem"

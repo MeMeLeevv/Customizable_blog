@@ -1,7 +1,10 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
-
+/*
+@/utils/request.js 是基于 axios 的封装，便于统一处理 POST，GET 等请求参数，请求头，以及错误提示信息等。
+具体可以参看 request.js。 它封装了全局 request拦截器、response拦截器、统一的错误处理、统一做了超时处理、baseURL设置等
+*/
 // create an axios instance
 const service = axios.create({ // 自定义配置新建一个 axios 实例
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url

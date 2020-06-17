@@ -100,9 +100,7 @@ export default {
       handler: function (to, from) { /* 设置页面也储存blogId吧！这样就可以统一了~~~~~~~~~~~~ */
       // 记录路由的来源和去路,及时修改路由index.js对应路由下main的component
         if (to.params.blogId) { // 如果存在blogId，则在本地存储，以便刷新时用到
-          console.log(to.params.blogId, 'to.params.blogId')
           storeLocalData([['blogId', to.params.blogId]])
-          console.log(getLocalData(['blogId'])[0], "getLocalData(['blogId'])[0]")
         }
         this.to = to.path
         // const that = this
@@ -120,7 +118,7 @@ export default {
         }
         if (this.to === '/') {
           console.log('to == /')
-          if (getLocalData(['blogId']).length !== 0) { // 这里是为了预防刷新时路由会自动变成‘/’,此时需要取出blogId
+          if (getLocalData(['blogId']).length[0]) { // 这里是为了预防刷新时路由会自动变成‘/’,此时需要取出blogId
             this.$router.push(`/${getLocalData(['blogId'])[0]}`)
           } else {
             this.$router.push('/tCqtL_yo9') // 否则默认路由为‘/tCqtL_yo9’

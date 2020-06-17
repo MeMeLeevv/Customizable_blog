@@ -178,11 +178,13 @@
       <span class="blog-Masonry-row--container break"></span>
       <span class="blog-Masonry-row--container break"></span>
     </div>
+    <son :keke="123" yy="00" v-bind="$attrs"></son>
   </div>
 </template>
 <script>
 import { createArticle } from '@/api/article'
 import { updateBlogSetting } from '@/api/blog'
+import son from '@/views/blogList/grantson.vue'
 export default {
   name: 'blogList',
   props: {
@@ -343,7 +345,9 @@ export default {
   },
   computed: {},
   mounted () {
+    const that = this
     this.$nextTick(function (params) {
+      console.log(that.$attrs, 'attr') // {hahha: 123} "attr"
       // this.$refs.blogWrap.scrollTop = this.$store.state.blog.scrollTop
     })
   },
@@ -412,6 +416,7 @@ export default {
     }
   },
   components: {
+    son
   }
 }
 </script>

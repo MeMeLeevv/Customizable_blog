@@ -1,7 +1,6 @@
 /* eslint-disable quotes */
 // vue.config.js
 'use strict'
-var webpack = require('webpack')
 const path = require('path')
 
 function resolve (dir) {
@@ -9,10 +8,17 @@ function resolve (dir) {
 }
 
 const config = {
+  // 在v3.3之前，又叫 baseUrl,可以理解为项目的一个contextPath，默认为/, 如果你配置了为 yourProjectPath，那么在构建后，所有引用的路径都会带上 yourProjectPath
   publicPath: '/',
+  // 当运行 vue-cli-service build 时生成的生产环境构建文件的目录。注意目标目录在构建之前会被清除 (构建时传入 --no-clean 可关闭该行为)。
   outputDir: 'dist',
+  // 放置生成的静态资源 (js、css、img、fonts) 的 (相对于 outputDir 的) 目录。
   assetsDir: 'static',
+  /* 默认情况下，生成的静态资源在它们的文件名中包含了 hash 以便更好的控制缓存。然而，这也要求 index 的 HTML 是被 Vue CLI 自动生成的。
+  如果你无法使用 Vue CLI 生成的 index HTML，你可以通过将这个选项设为 false 来关闭文件名哈希。 */
+  // filenameHashing: true,
   productionSourceMap: false,
+  // 是否在开发环境下通过 eslint-loader 在每次保存时 lint 代码。
   lintOnSave: process.env.NODE_ENV === 'development',
   // 选项...
   devServer: {
@@ -20,7 +26,7 @@ const config = {
     host: 'localhost',
     https: false, // https:{type:Boolean}
     open: false, // 配置自动启动浏览器
-    overlay: {
+    overlay: { // 出现编译器错误或警告时，在浏览器中显示全屏覆盖。
       warnings: false,
       errors: true
     },
@@ -35,17 +41,16 @@ const config = {
       }
     }
   },
-  // 配置多个代理
-  parallel: require('os').cpus().length > 1,
-  configureWebpack: {
-    plugins: [
-      new webpack.ProvidePlugin({
-        'window.Quill': 'quill/dist/quill.js',
-        Quill: 'quill/dist/quill.js'
-      })
-    ]
-  },
+
   chainWebpack (config) {
+    // 添加别名
+    config.resolve.alias
+      .set('@', resolve('src'))
+      .set('@assets', resolve('src/assets'))
+      .set('@components', resolve('src/components'))
+      .set('@router', resolve('src/router'))
+      .set('@views', resolve('src/views'))
+    // 删除预加载
     config.plugins.delete('preload')
     config.plugins.delete('prefetch')
 
@@ -95,7 +100,8 @@ const config = {
             }])
             .end()
           config
-            .optimization.splitChunks({
+            .optimization.splitChunks({ /* Code Splitting——分离业务代码和第三方库（ vendor ）
+              按需加载（利用 import() 语法）参考：https://zhuanlan.zhihu.com/p/26710831 */
               chunks: 'all',
               cacheGroups: {
                 libs: {
@@ -109,7 +115,7 @@ const config = {
                   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
                   test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
                 },
-                commons: {
+                commons: { // 提取公共模块
                   name: 'chunk-commons',
                   test: resolve('src/components'), // can customize your rules
                   minChunks: 3, //  minimum common number
@@ -123,6 +129,7 @@ const config = {
       )
   },
   css: {
+    // 提供了一个针对CSS预处理的统一配置入口，包括了Sass、Less等的
     loaderOptions: {
       // 默认情况下 `sass` 选项会同时对 `sass` 和 `scss` 语法同时生效
       // 因为 `scss` 语法在内部也是由 sass-loader 处理的
@@ -131,6 +138,7 @@ const config = {
       // 在这种情况下，我们可以使用 `scss` 选项，对 `scss` 语法进行单独配置
       // https://cli.vuejs.org/zh/guide/css.html#%E5%90%91%E9%A2%84%E5%A4%84%E7%90%86%E5%99%A8-loader-%E4%BC%A0%E9%80%92%E9%80%89%E9%A1%B9
       scss: {
+        // @/ 是 src/ 的别名 切面式的注入了全局样式，以减少一些高频文件的引入重复工作。
         prependData: `@import "~@/styles/variables.scss";`
       }
     }

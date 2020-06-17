@@ -9,7 +9,7 @@
     </transition>
     <!-- <div id="showBlock"></div>class不行？ id才能插入 -->
     <headlines v-if="showHeadlines" v-bind:headlinesData.sync="headlinesData" @deleteHeadlines="deleteHeadlines" :which="1"></headlines>
-    <blogList v-if="!hideBlogList" :blogData="blogData" :showEditDialog.sync="showEditDialog" @refreshBlogList="refreshBlogList"></blogList>
+    <blogList v-if="!hideBlogList" :hahha="123" :blogData="blogData" :showEditDialog.sync="showEditDialog" @refreshBlogList="refreshBlogList"></blogList>
   </div>
 </template>
 <script>
